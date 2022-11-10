@@ -7,9 +7,9 @@ EXAMPLES_DIR = join(PROJ_ROOT, "examples")
 
 # Docker variables
 EXAMPLES_BUILD_IMAGE_NAME = "faasm/examples-build"
-EXAMPLES_BUILD_DOCKERFILE = join(PROJ_ROOT, "build.dockerfile")
+EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
 EXAMPLES_RUN_IMAGE_NAME = "faasm/examples-build"
-EXAMPLES_RUN_DOCKERFILE = join(PROJ_ROOT, "run.dockerfile")
+EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
 
 
 def get_submodule_version(submodule):
@@ -29,17 +29,17 @@ def get_python_version():
     """
     Get the version of the python submodule
     """
-    get_submodule_version("python")
+    return get_submodule_version("python")
 
 
 def get_faasm_version():
     """
     Get the version of the python submodule
     """
-    get_submodule_version("faasm")
+    return get_submodule_version("faasm")
 
 
-def get_version(name):
+def get_version(name="build"):
     """
     Get version for the examples repository
 

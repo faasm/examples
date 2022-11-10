@@ -1,6 +1,7 @@
 from faasmtools.build import FAASM_LOCAL_DIR
 from invoke import task
-from os.path import join
+from os import makedirs
+from os.path import basename, exists, join
 from shutil import copyfile
 from tasks.env import EXAMPLES_DIR
 
@@ -28,4 +29,8 @@ def prepare(ctx):
     for p in data_files:
         path_src = p[0]
         path_dst = p[1]
+
+        if not exists(basename(path_dst)):
+            makedirs(basename(path_dst))
+
         copyfile(path_src, path_dst)
