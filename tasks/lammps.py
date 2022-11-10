@@ -1,6 +1,6 @@
 from faasmtools.build import CMAKE_TOOLCHAIN_FILE, FAASM_BUILD_ENV_DICT
 from faasmtools.compile_util import wasm_copy_upload
-from faasmtools.env import THIRD_PARTY_DIR
+from tasks.env import EXAMPLES_DIR
 from invoke import task
 from os import environ, makedirs
 from os.path import exists, join
@@ -17,7 +17,7 @@ def build(ctx, clean=False):
     executed by passing different command line arguments. As a consequence,
     we cross-compile it and copy the binary (lmp) to lammps/main/function.wasm
     """
-    lammps_dir = join(THIRD_PARTY_DIR, "lammps")
+    lammps_dir = join(EXAMPLES_DIR, "lammps")
     cmake_dir = join(lammps_dir, "cmake")
     build_dir = join(lammps_dir, "build")
 

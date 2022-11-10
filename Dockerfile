@@ -5,8 +5,8 @@ SHELL ["/bin/bash", "-c"]
 ENV IN_DOCKER="on"
 
 # Install APT dependencies
-RUN apt update \
-    && apt upgrade -y
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
@@ -15,7 +15,10 @@ RUN mkdir -p code \
         https://github.com/faasm/examples \
         /code/examples \
     && cd /code/examples \
-    && git submodule update --init -f examples/LAMMPS
+    && git submodule update --init -f cpp \
+    && git submodule update --init -f python \
+    # Fetch all the example submodules
+    && git submodule update --init -f examples/lammps
 
 # Build the examples and demo functions
 RUN cd /code/examples \

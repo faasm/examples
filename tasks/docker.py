@@ -20,9 +20,10 @@ def get_tag():
     return "{}:{}".format(EXAMPLES_IMAGE_NAME, version)
 
 
+@task()
 def build(ctx, nocache=False, push=False):
     """
-    Build container image.
+    Build container image
     """
     build_args = {
         "CPP_VERSION": get_cpp_version(),
@@ -40,9 +41,9 @@ def build(ctx, nocache=False, push=False):
     )
 
 
-@task(iterable=["c"])
-def push(ctx, c):
+@task()
+def push(ctx):
     """
-    Push container image.
+    Push container image
     """
     push_container(get_tag())
