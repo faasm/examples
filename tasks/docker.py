@@ -4,15 +4,13 @@ from faasmtools.docker import (
     push_container,
 )
 from tasks.env import (
+    EXAMPLES_DOCKERFILE,
+    EXAMPLES_IMAGE_NAME,
     PROJ_ROOT,
     get_python_version,
     get_version,
 )
 from invoke import task
-from os.path import join
-
-EXAMPLES_IMAGE_NAME = "faasm/examples"
-EXAMPLES_DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
 
 
 def get_tag():

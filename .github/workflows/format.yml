@@ -1,0 +1,29 @@
+name: Format code
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  # Cancel previous running actions for the same PR
+  cancel_previous:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Workflow Action
+        uses: styfle/cancel-workflow-action@0.11.0
+
+  checks:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      # --- Update code ---
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      # --- Formatting ---
+      - name: "Format code"
+        run: ./bin/inv_wrapper.sh format-code --check

@@ -7,6 +7,10 @@ cross-compiled to WebAssembly for their use with Faasm.
 
 ## Application support status
 
+| Project Name | Language | Cross-Compilation | Execution |
+| --- | --- | --- | --- |
+| [LAMMPS](https://github.com/lammps/lammps) | C++ (MPI) | N/A | N/A |
+
 ## Adding a new application
 
 

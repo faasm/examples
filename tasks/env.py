@@ -4,6 +4,10 @@ from os.path import dirname, abspath, join
 PROJ_ROOT = dirname(dirname(abspath(__file__)))
 EXAMPLES_DIR = join(PROJ_ROOT, "examples")
 
+# Docker variables
+EXAMPLES_IMAGE_NAME = "faasm/examples"
+EXAMPLES_DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
+
 
 def get_python_version():
     """
