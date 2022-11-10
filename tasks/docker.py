@@ -1,72 +1,48 @@
-from invoke import task
-
-from os.path import join
-
+from faasmtools.env import get_version as get_cpp_version
 from faasmtools.docker import (
     build_container,
     push_container,
 )
-
-from faasmtools.env import (
-    get_version,
+from tasks.env import (
     PROJ_ROOT,
-    LLVM_VERSION,
+    get_python_version,
+    get_version,
 )
+from invoke import task
+from os.path import join
 
-LLVM_IMAGE_NAME = "faasm/llvm"
-LLVM_DOCKERFILE = join(PROJ_ROOT, "docker", "llvm.dockerfile")
-SYSROOT_IMAGE_NAME = "faasm/cpp-sysroot"
-SYSROOT_DOCKERFILE = join(PROJ_ROOT, "docker", "cpp-sysroot.dockerfile")
+EXAMPLES_IMAGE_NAME = "faasm/examples"
+EXAMPLES_DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
 
 
-def get_sysroot_tag():
+def get_tag():
     version = get_version()
-    return "{}:{}".format(SYSROOT_IMAGE_NAME, version)
+    return "{}:{}".format(EXAMPLES_IMAGE_NAME, version)
 
 
-def get_llvm_tag():
-    return "{}:{}".format(LLVM_IMAGE_NAME, LLVM_VERSION)
-
-
-@task(iterable=["c"])
-def build(ctx, c, nocache=False, push=False):
+def build(ctx, nocache=False, push=False):
     """
-    Build container images. Possible images are: `llvm`, and `cpp-sysroot`.
+    Build container image.
     """
-    build_args = {"SYSROOT_VERSION": get_version()}
-    for ctr in c:
-        if ctr == "llvm":
-            dockerfile = LLVM_DOCKERFILE
-            tag = get_llvm_tag()
-        elif ctr == "cpp-sysroot":
-            dockerfile = SYSROOT_DOCKERFILE
-            tag = get_sysroot_tag()
-        else:
-            print("Unrecognised container image: {}".format(ctr))
-            raise RuntimeError("Unrecognised container image")
+    build_args = {
+        "CPP_VERSION": get_cpp_version(),
+        "EXAMPLES_VERSION": get_version(),
+        "PYTHON_VERSION": get_python_version(),
+    }
 
-        build_container(
-            tag,
-            dockerfile,
-            PROJ_ROOT,
-            nocache=nocache,
-            push=push,
-            build_args=build_args,
-        )
+    build_container(
+        get_tag(),
+        EXAMPLES_DOCKERFILE,
+        PROJ_ROOT,
+        nocache=nocache,
+        push=push,
+        build_args=build_args,
+    )
 
 
 @task(iterable=["c"])
 def push(ctx, c):
     """
-    Push container images. Possible images are: `llvm`, and `cpp-sysroot`.
+    Push container image.
     """
-    for ctr in c:
-        if ctr == "llvm":
-            tag = get_llvm_tag()
-        elif ctr == "cpp-sysroot":
-            tag = get_sysroot_tag()
-        else:
-            print("Unrecognised container image: {}".format(ctr))
-            raise RuntimeError("Unrecognised container image")
-
-        push_container(tag)
+    push_container(get_tag())
