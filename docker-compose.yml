@@ -3,9 +3,11 @@ version: "3"
 services:
   run:
     image: faasm/examples-run:${EXAMPLES_RUN_VERSION}
+    working_dir: /usr/local/code/faasm
+    stdin_open: true
+    tty: true
     volumes:
       - ./:/code/examples
-      - ${FAASM_BUILD_DIR}:${FAASM_BUILD_MOUNT}
       - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
       - ./dev/faasm-local/shared/:/usr/local/faasm/shared
     environment:
@@ -15,8 +17,10 @@ services:
 
   build:
     image: faasm/examples-build:${EXAMPLES_BUILD_VERSION}
+    working_dir: /code/examples
+    stdin_open: true
+    tty: true
     volumes:
       - ./:/code/examples
-      - ${FAASM_BUILD_DIR}:${FAASM_BUILD_MOUNT}
       - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
       - ./dev/faasm-local/shared/:/usr/local/faasm/shared

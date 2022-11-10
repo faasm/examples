@@ -4,11 +4,12 @@ from os.path import dirname, abspath, join
 PROJ_ROOT = dirname(dirname(abspath(__file__)))
 DOCKER_ROOT = join(PROJ_ROOT, "docker")
 EXAMPLES_DIR = join(PROJ_ROOT, "examples")
+DEV_FAASM_LOCAL = join(PROJ_ROOT, "dev", "faasm-local")
 
 # Docker variables
 EXAMPLES_BUILD_IMAGE_NAME = "faasm/examples-build"
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
-EXAMPLES_RUN_IMAGE_NAME = "faasm/examples-build"
+EXAMPLES_RUN_IMAGE_NAME = "faasm/examples-run"
 EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
 
 

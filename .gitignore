@@ -1,3 +1,6 @@
 # Python virtual environments
 venv
 venv-bm
+
+# Shared mounts between containers
+dev
