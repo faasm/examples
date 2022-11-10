@@ -49,6 +49,7 @@ complete -F _complete_invoke -o default invoke inv
 # Environment vars
 # ----------------------------
 
+export FAASM_VERSION=$(cat ${PROJ_ROOT}/faasm/VERSION)
 export CPP_VERSION=$(cat ${PROJ_ROOT}/cpp/VERSION)
 export PYTHON_VERSION=$(cat ${PROJ_ROOT}/python/VERSION)
 

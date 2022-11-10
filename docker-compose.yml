@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  run:
+    image: faasm/examples-run:${EXAMPLES_RUN_VERSION}
+    volumes:
+      - ./:/code/examples
+      - ${FAASM_BUILD_DIR}:${FAASM_BUILD_MOUNT}
+      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
+      - ./dev/faasm-local/shared/:/usr/local/faasm/shared
+    environment:
+      - LOG_LEVEL=info
+      - LD_LIBRARY_PATH=/build/faasm/third-party/lib:/usr/local/lib
+      - WASM_VM=${WASM_VM:-wavm}
+
+  build:
+    image: faasm/examples-build:${EXAMPLES_BUILD_VERSION}
+    volumes:
+      - ./:/code/examples
+      - ${FAASM_BUILD_DIR}:${FAASM_BUILD_MOUNT}
+      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
+      - ./dev/faasm-local/shared/:/usr/local/faasm/shared
