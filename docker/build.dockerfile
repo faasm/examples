@@ -20,6 +20,7 @@ RUN mkdir -p code \
     # Fetch all the example submodules
     && git submodule update --init -f examples/FFmpeg \
     && git submodule update --init -f examples/ImageMagick \
+    && git submodule update --init -f examples/Kernels \
     && git submodule update --init -f examples/lammps \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
