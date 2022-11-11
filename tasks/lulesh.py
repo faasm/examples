@@ -1,11 +1,11 @@
 from faasmtools.build import CMAKE_TOOLCHAIN_FILE, FAASM_BUILD_ENV_DICT
 from faasmtools.compile_util import wasm_copy_upload
-from tasks.env import EXAMPLES_DIR
 from invoke import task
 from os import environ, makedirs
 from os.path import exists, join
 from shutil import rmtree
 from subprocess import run
+from tasks.env import EXAMPLES_DIR
 
 
 @task(default=True)

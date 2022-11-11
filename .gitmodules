@@ -12,3 +12,7 @@
 	path = examples/LULESH
 	url = https://github.com/faasm/LULESH.git
 	branch = faasm
+[submodule "examples/FFmpeg"]
+	path = examples/FFmpeg
+	url = https://github.com/faasm/FFmpeg.git
+	branch = faasm
