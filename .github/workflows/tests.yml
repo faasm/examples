@@ -62,7 +62,7 @@ jobs:
 
   run-examples:
     if: github.event.pull_request.draft == false
-      # needs: [build-examples]
+    needs: [build-examples]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -87,13 +87,11 @@ jobs:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
     steps:
-      #       - name: "Download examples wasm"
-      #         uses: actions/download-artifact@v3.0.1
-      #         with:
-      #           name: examples-wasm
-      #           path: /usr/local/faasm/wasm
-      #       - name: "Temporarily"
-      #         run: ./bin/inv_wrapper.sh dev.cc local_pool_runner
+       - name: "Download examples wasm"
+         uses: actions/download-artifact@v3.0.1
+         with:
+           name: examples-wasm
+           path: /usr/local/faasm/wasm
       - name: "Run codegen for all the examples"
         run: |
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
@@ -144,7 +142,5 @@ jobs:
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
       - name: "Run TFlite check"
         run: ./bin/inv_wrapper.sh run tf check
-      - name: "Sanity check"
-        run: ls -lart /usr/local/faasm/shared && ls -lart /usr/local/faasm/shared/ffmpeg
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
