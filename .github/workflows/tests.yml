@@ -1,4 +1,4 @@
-name: Format code
+name: Test example applications
 
 on:
   push:
@@ -85,9 +85,15 @@ jobs:
           path: /usr/local/faasm/wasm
       - name: "Temporarily"
         run: ./bin/inv_wrapper.sh dev.cc local_pool_runner
+      - name: "Run codegen for all the examples"
+        run: |
+          ./bin/inv_wrapper.sh codegen.user kernels-mpi
+          ./bin/inv_wrapper.sh codegen.user kernels-omp
+          ./bin/inv_wrapper.sh codegen lammps main
+          ./bin/inv_wrapper.sh codegen lulesh main
       - name: "Run MPI kernels"
         run: |
-          ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1000'
           ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
           ./bin/inv_wrapper.sh run.pool kernels-mpi sparse --cmdline '10 10 5'
           ./bin/inv_wrapper.sh run.pool kernels-mpi transpose --cmdline '10 1024 32'

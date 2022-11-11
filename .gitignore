@@ -4,3 +4,6 @@ venv-bm
 
 # Shared mounts between containers
 dev
+
+# CPP builds
+build

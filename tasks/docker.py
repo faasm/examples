@@ -63,4 +63,4 @@ def push(ctx):
     """
     Push container image
     """
-    push_container(get_tag())
+    push_container(get_tag("build"))

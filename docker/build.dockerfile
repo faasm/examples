@@ -37,7 +37,11 @@ RUN cd /code/examples \
         kernels \
         lammps \
         lulesh \
-        tensorflow
+        tensorflow \
+    # These demo functions link with the cross-compiled static libraries
+    && inv \
+        func ffmpeg check \
+        func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples

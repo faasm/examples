@@ -5,6 +5,7 @@ from . import data
 from . import docker
 from . import ffmpeg
 from . import format_code
+from . import func
 from . import git
 from . import imagemagick
 from . import kernels
@@ -19,6 +20,7 @@ ns = Collection(
     docker,
     ffmpeg,
     format_code,
+    func,
     git,
     imagemagick,
     kernels,
