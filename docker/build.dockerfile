@@ -18,7 +18,12 @@ RUN mkdir -p code \
     && git submodule update --init -f cpp \
     && git submodule update --init -f python \
     # Fetch all the example submodules
-    && git submodule update --init -f examples/lammps
+    && git submodule update --init -f examples/FFmpeg \
+    && git submodule update --init -f examples/ImageMagick \
+    && git submodule update --init -f examples/lammps \
+    && git submodule update --init -f examples/LULESH \
+    && git submodule update --init -f examples/libpng \
+    && git submodule update --init -f examples/tensorflow
 
 # Build the examples and demo functions
 RUN cd /code/examples \
@@ -26,6 +31,8 @@ RUN cd /code/examples \
     && source venv/bin/activate \
     && inv \
         ffmpeg \
+        # ImageMagick needs libpng
+        libpng imagemagick \
         lammps \
         lulesh
 

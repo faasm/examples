@@ -20,3 +20,11 @@
 	path = examples/tensorflow
 	url = https://github.com/faasm/tensorflow.git
 	branch = faasm
+[submodule "examples/ImageMagick"]
+	path = examples/ImageMagick
+	url = https://github.com/faasm/ImageMagick.git
+	branch = faasm
+[submodule "examples/libpng"]
+	path = examples/libpng
+	url = https://github.com/faasm/libpng.git
+	branch = faasm

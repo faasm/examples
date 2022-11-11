@@ -6,8 +6,11 @@ from . import docker
 from . import ffmpeg
 from . import format_code
 from . import git
+from . import imagemagick
 from . import lammps
+from . import libpng
 from . import lulesh
+from . import tensorflow
 
 ns = Collection(
     cli,
@@ -16,6 +19,9 @@ ns = Collection(
     ffmpeg,
     format_code,
     git,
+    imagemagick,
     lammps,
+    libpng,
     lulesh,
+    tensorflow,
 )
