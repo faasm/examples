@@ -87,11 +87,11 @@ jobs:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
     steps:
-       - name: "Download examples wasm"
-         uses: actions/download-artifact@v3.0.1
-         with:
-           name: examples-wasm
-           path: /usr/local/faasm/wasm
+      - name: "Download examples wasm"
+        uses: actions/download-artifact@v3.0.1
+        with:
+          name: examples-wasm
+          path: /usr/local/faasm/wasm
       - name: "Run codegen for all the examples"
         run: |
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
