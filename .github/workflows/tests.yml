@@ -100,8 +100,8 @@ jobs:
           ./bin/inv_wrapper.sh codegen.user kernels-omp
           ./bin/inv_wrapper.sh codegen lammps main
           ./bin/inv_wrapper.sh codegen lulesh main
-          # ./bin/inv_wrapper.sh codegen ffmpeg check
-          # ./bin/inv_wrapper.sh codegen tf check
+          ./bin/inv_wrapper.sh codegen ffmpeg check
+          ./bin/inv_wrapper.sh codegen tf check
       - name: "Put all data files in place"
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
