@@ -67,6 +67,13 @@ jobs:
     defaults:
       run:
         working-directory: /usr/local/code/faasm
+    env:
+      CGROUP_MODE: off
+      HOST_TYPE: ci
+      LOG_LEVEL: info
+      NETNS_MODE: off
+      REDIS_QUEUE_HOST: redis
+      REDIS_STATE_HOST: redis
     container:
       image: faasm/examples-run:0.8.17
     services:
@@ -89,8 +96,8 @@ jobs:
         run: |
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
           ./bin/inv_wrapper.sh codegen.user kernels-omp
-          ./bin/inv_wrapper.sh codegen lammps main
-          ./bin/inv_wrapper.sh codegen lulesh main
+          # ./bin/inv_wrapper.sh codegen lammps main
+          # ./bin/inv_wrapper.sh codegen lulesh main
       - name: "Run MPI kernels"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1000'
