@@ -28,3 +28,7 @@
 	path = examples/libpng
 	url = https://github.com/faasm/libpng.git
 	branch = faasm
+[submodule "examples/Kernels"]
+	path = examples/Kernels
+	url = https://github.com/faasm/Kernels.git
+	branch = faasm

@@ -34,7 +34,8 @@ RUN cd /code/examples \
         # ImageMagick needs libpng
         libpng imagemagick \
         lammps \
-        lulesh
+        lulesh \
+        tensorflow
 
 # Prepare bashrc
 WORKDIR /code/examples

@@ -7,6 +7,7 @@ from . import ffmpeg
 from . import format_code
 from . import git
 from . import imagemagick
+from . import kernels
 from . import lammps
 from . import libpng
 from . import lulesh
@@ -20,6 +21,7 @@ ns = Collection(
     format_code,
     git,
     imagemagick,
+    kernels,
     lammps,
     libpng,
     lulesh,

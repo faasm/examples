@@ -44,10 +44,16 @@ jobs:
           submodules: true
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
+      - name: "Build ImageMagick"
+        run: ./bin/inv_wrapper.sh libpng imagemagick
+      - name: "Build Kernels"
+        run: ./bin/inv_wrapper.sh kernels
       - name: "Build LAMMPS"
         run: ./bin/inv_wrapper.sh lammps
       - name: "Build Lulesh"
         run: ./bin/inv_wrapper.sh lulesh
+      - name: "Build TensorFlow"
+        run: ./bin/inv_wrapper.sh tensorflow
       - name: "Upload examples wasm"
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -79,6 +85,39 @@ jobs:
           path: /usr/local/faasm/wasm
       - name: "Temporarily"
         run: ./bin/inv_wrapper.sh dev.cc local_pool_runner
+      - name: "Run MPI kernels"
+        run: |
+          ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi sparse --cmdline '10 10 5'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi transpose --cmdline '10 1024 32'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi stencil --cmdline '10 1000'
+          # The dgemm MPI kernel does not work because we are missing
+          # implementations for MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
+          # ./bin/inv_wrapper.sh run.pool kernels-mpi dgemm --cmdline '10 1024 32 1'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi nstream --cmdline '10 1024 32'
+          ./bin/inv_wrapper.sh run.pool kernels-mpi reduce --cmdline '10 1024'
+          # The random MPI kernel does not work because we are missing
+          # implementations for MPI_Alltoallv
+          # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
+      - name: "Run OpenMP kernels"
+        run: |
+          ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
+          ./bin/inv_wrapper.sh run.pool kernels-omp p2p --cmdline '2 10 1024 1024'
+          # The sparse OpenMP kernel fails during the result integrity checks
+          # ./bin/inv_wrapper.sh run.pool kernels-omp sparse --cmdline '2 10 10 5'
+          # The transpose OpenMP kernel can not be cross-compiled due to problems
+          # with the static_for signature and symbol definition
+          # ./bin/inv_wrapper.sh run.pool kernels-omp transpose --cmdline '10 1024 32'
+          # The stencil OpenMP kernel can not be cross-compiled due to a problem
+          # with the faasm_sm_reduce signature
+          # ./bin/inv_wrapper.sh run.pool kernels-omp stencil --cmdline '10 1000'
+          # ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '10 1024 32 1'
+          ./bin/inv_wrapper.sh run.pool kernels-omp nstream --cmdline '2 10 1024 32'
+          ./bin/inv_wrapper.sh run.pool kernels-omp reduce --cmdline '2 10 1024'
+          # The random OpenMP kernel can not be cross-compiled due to a problem
+          # with the faasm_sm_reduce signature
+          # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
       - name: "Run LAMMPS"
         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://in.controller.wall'
       - name: "Run LULESH"
