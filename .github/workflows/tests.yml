@@ -138,6 +138,6 @@ jobs:
           #       - name: "Run FFmpeg check"
           #         run: ./bin/inv_wrapper.sh run ffmpeg check
       - name: "Run LAMMPS"
-        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://in.controller.wall'
+        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
