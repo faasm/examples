@@ -7,10 +7,12 @@ cross-compiled to WebAssembly for their use with Faasm.
 
 ## Application support status
 
-| Project Name | Language | Cross-Compilation | WAVM | WAMR | SGX |
-| --- | --- | --- | --- |
-| [LAMMPS](https://github.com/lammps/lammps) | C++ (MPI) | N/A | N/A |
+| Project Name | Language | Notes |
+| --- | --- | --- |
+| [LAMMPS](https://github.com/lammps/lammps) | C++ | MPI |
 
 ## Adding a new application
 
+
+## Bumping Faasm, CPP, or Python version
 
