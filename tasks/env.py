@@ -37,7 +37,13 @@ def get_faasm_version():
     """
     Get the version of the python submodule
     """
-    return get_submodule_version("faasm")
+    ver_file = join(PROJ_ROOT, "FAASM_VERSION")
+
+    with open(ver_file, "r") as fh:
+        version = fh.read()
+
+    version = version.strip()
+    return version
 
 
 def get_version(name="build"):

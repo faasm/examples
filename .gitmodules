@@ -8,6 +8,3 @@
 	path = examples/lammps
 	url = https://github.com/faasm/lammps
 	branch = faasm
-[submodule "faasm"]
-	path = faasm
-	url = https://github.com/faasm/faasm.git
