@@ -16,3 +16,7 @@
 	path = examples/FFmpeg
 	url = https://github.com/faasm/FFmpeg.git
 	branch = faasm
+[submodule "examples/tensorflow"]
+	path = examples/tensorflow
+	url = https://github.com/faasm/tensorflow.git
+	branch = faasm

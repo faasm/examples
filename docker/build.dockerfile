@@ -24,7 +24,9 @@ RUN mkdir -p code \
 RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
-    && inv lammps \
+    && inv \
+        ffmpeg \
+        lammps \
         lulesh
 
 # Prepare bashrc
