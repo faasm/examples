@@ -142,7 +142,9 @@ jobs:
         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
-      - name: "Run FFmpeg check"
-        run: ./bin/inv_wrapper.sh run ffmpeg check
       - name: "Run TFlite check"
         run: ./bin/inv_wrapper.sh run tf check
+      - name: "Sanity check"
+        run: ls -lart /usr/local/faasm/shared && ls -lart /usr/local/faasm/shared/ffmpeg
+      - name: "Run FFmpeg check"
+        run: ./bin/inv_wrapper.sh run ffmpeg check

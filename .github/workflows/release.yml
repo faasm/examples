@@ -45,10 +45,10 @@ jobs:
         with:
           push: true
           file: docker/${{ matrix.image }}.dockerfile
-          build-args:
-            - CPP_VERSION=${{ env.CPP_VERSION }}
-            - EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
-            - PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+          build-args: |
+            CPP_VERSION=${{ env.CPP_VERSION }}
+            EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
           context: .
           tags: faasm/examples-build:${{ env.EXAMPLES_VERSION }}
       - name: "Build and push examples-run image"
@@ -56,8 +56,8 @@ jobs:
         with:
           push: true
           file: docker/${{ matrix.image }}.dockerfile
-          build-args:
-            - EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
-            - FAASM_VERSION=${{ env.FAASM_VERSION }}
+          build-args: |
+            EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
+            FAASM_VERSION=${{ env.FAASM_VERSION }}
           context: .
           tags: faasm/examples-run:${{ env.FAASM_VERSION }}
