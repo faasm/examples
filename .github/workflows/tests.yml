@@ -75,5 +75,9 @@ jobs:
         with:
           name: examples-wasm
           path: /usr/local/faasm/wasm
+      - name: "Temporarily"
+        run: ./bin/inv_wrapper.sh dev.cc local_pool_runner
       - name: "Run LAMMPS"
-        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline "-in faasm://in.controller.wall"
+        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://in.controller.wall'
+      - name: "Run LULESH"
+        run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
