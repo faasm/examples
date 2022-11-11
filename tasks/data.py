@@ -28,7 +28,15 @@ def prepare(ctx):
         [
             join(DATA_HOST_DIR, "ffmpeg_video.mp4"),
             join(DATA_BASE_DIR, "ffmpeg", "sample_video.mp4"),
-        ]
+        ],
+        [
+            join(DATA_HOST_DIR, "sample_model.tflite"),
+            join(DATA_BASE_DIR, "tflite", "sample_model.tflite"),
+        ],
+        [
+            join(DATA_HOST_DIR, "grace_hopper.bmp"),
+            join(DATA_BASE_DIR, "tflite", "grace_hopper.bmp"),
+        ],
     ]
 
     for p in data_files:
