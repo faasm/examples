@@ -19,7 +19,9 @@ def compile(ctx, user, func, clean=False, debug=False):
     Compile a function to test a sample library
     """
     # Build the function (gets written to the build dir)
-    wasm_cmake(FUNC_DIR, FUNC_BUILD_DIR, "{}_{}".format(user, func), clean, debug)
+    wasm_cmake(
+        FUNC_DIR, FUNC_BUILD_DIR, "{}_{}".format(user, func), clean, debug
+    )
 
     # Copy into place
     _copy_built_function(user, func)
