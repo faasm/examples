@@ -3,9 +3,10 @@ from invoke import task
 from os import makedirs
 from os.path import dirname, exists, join
 from shutil import copyfile
-from tasks.env import EXAMPLES_DIR
+from tasks.env import EXAMPLES_DIR, PROJ_ROOT
 
 DATA_BASE_DIR = join(FAASM_LOCAL_DIR, "shared")
+DATA_HOST_DIR = join(PROJ_ROOT, "data")
 
 
 @task(default=True)
@@ -23,6 +24,10 @@ def prepare(ctx):
                 "in.controller.wall",
             ),
             join(DATA_BASE_DIR, "lammps-data", "in.controller.wall"),
+        ],
+        [
+            join(DATA_HOST_DIR, "ffmpeg_video.mp4"),
+            join(DATA_BASE_DIR, "ffmpeg", "sample_video.mp4"),
         ]
     ]
 

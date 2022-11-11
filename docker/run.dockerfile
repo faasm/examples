@@ -9,4 +9,5 @@ RUN cd /code/examples \
 
 FROM faasm/cli:${FAASM_VERSION}
 
+COPY --from=build /code/examples /code/examples
 COPY --from=build /usr/local/faasm/wasm /usr/local/faasm/wasm

@@ -102,6 +102,9 @@ jobs:
           ./bin/inv_wrapper.sh codegen lulesh main
           # ./bin/inv_wrapper.sh codegen ffmpeg check
           # ./bin/inv_wrapper.sh codegen tf check
+      - name: "Put all data files in place"
+        run: ./bin/inv_wrapper.sh data
+        working-directory: /code/examples
       - name: "Run MPI kernels"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
