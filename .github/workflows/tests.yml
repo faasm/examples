@@ -25,7 +25,8 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     defaults:
-      working-directory: /code/examples
+      run:
+        working-directory: /code/examples
     container:
       image: faasm/examples-build:0.1.11_0.1.1
     steps:
@@ -45,7 +46,8 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     defaults:
-      working-directory: /usr/local/code/faasm
+      run:
+        working-directory: /usr/local/code/faasm
     container:
       image: faasm/examples-run:0.8.17
     services:
