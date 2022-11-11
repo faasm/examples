@@ -1,0 +1,66 @@
+name: Format code
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  checks:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      # --- Update code ---
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      # --- Formatting ---
+      - name: "Format code"
+        run: ./bin/inv_wrapper.sh format-code --check
+
+  build-examples:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    defaults:
+      working-directory: /code/examples
+    container:
+      image: faasm/examples-build:0.1.11_0.1.1
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: "Build LAMMPS"
+        run: ./bin/inv_wrapper.sh lammps
+      - name: "Upload examples wasm"
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: examples-wasm
+          path: /usr/local/faasm/wasm
+
+  run-examples:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    defaults:
+      working-directory: /usr/local/code/faasm
+    container:
+      image: faasm/examples-run:0.8.17
+    services:
+      redis:
+        image: faasm/redis:0.8.17
+      minio:
+        image: faasm/minio:0.8.17
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+    steps:
+      - name: "Download examples wasm"
+        uses: actions/download-artifact@v3.0.1
+        with:
+          name: examples-wasm
+          path: /usr/local/faasm/wasm
+      - name: "Run LAMMPS"
+        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline "-in faasm://in.controller.wall"
