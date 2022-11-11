@@ -44,6 +44,8 @@ jobs:
           submodules: true
       - name: "Build LAMMPS"
         run: ./bin/inv_wrapper.sh lammps
+      - name: "Build Lulesh"
+        run: ./bin/inv_wrapper.sh lulesh
       - name: "Upload examples wasm"
         uses: actions/upload-artifact@v3.1.0
         with:

@@ -24,4 +24,10 @@ RUN mkdir -p code \
 RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
-    && inv lammps
+    && inv lammps \
+        lulesh
+
+# Prepare bashrc
+WORKDIR /code/examples
+RUN echo ". /code/examples/bin/workon.sh" >> ~/.bashrc
+CMD ["/bin/bash", "-l"]

@@ -8,3 +8,7 @@
 	path = examples/lammps
 	url = https://github.com/faasm/lammps
 	branch = faasm
+[submodule "examples/LULESH"]
+	path = examples/LULESH
+	url = https://github.com/faasm/LULESH.git
+	branch = faasm

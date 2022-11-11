@@ -6,6 +6,7 @@ from . import docker
 from . import format_code
 from . import git
 from . import lammps
+from . import lulesh
 
 ns = Collection(
     cli,
@@ -14,4 +15,5 @@ ns = Collection(
     format_code,
     git,
     lammps,
+    lulesh,
 )
