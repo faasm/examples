@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: docker/${{ matrix.image }}.dockerfile
+          file: docker/build.dockerfile
           build-args: |
             CPP_VERSION=${{ env.CPP_VERSION }}
             EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: docker/${{ matrix.image }}.dockerfile
+          file: docker/run.dockerfile
           build-args: |
             EXAMPLES_VERSION=${{ env.EXAMPLES_VERSION }}
             FAASM_VERSION=${{ env.FAASM_VERSION }}
