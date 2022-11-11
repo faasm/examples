@@ -73,6 +73,7 @@ jobs:
       HOST_TYPE: ci
       LOG_LEVEL: info
       NETNS_MODE: off
+      OVERRIDE_CPU_COUNT: 30
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
