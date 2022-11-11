@@ -34,6 +34,7 @@ RUN cd /code/examples \
         ffmpeg \
         # ImageMagick needs libpng
         libpng imagemagick \
+        kernels \
         lammps \
         lulesh \
         tensorflow
