@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  redis:
+    image: faasm/redis:${EXAMPLES_RUN_VERSION}
+
+  minio:
+    image: faasm/minio:${EXAMPLES_RUN_VERSION}
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - ./dev/minio/data:/data/minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  run:
+    depends_on:
+      - redis
+      - minio
+    image: faasm/examples-run:${EXAMPLES_RUN_VERSION}
+    working_dir: /usr/local/code/faasm
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/code/examples
+      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
+      - ./dev/faasm-local/shared/:/usr/local/faasm/shared
+    environment:
+      - LOG_LEVEL=info
+      - LD_LIBRARY_PATH=/build/faasm/third-party/lib:/usr/local/lib
+      - REDIS_QUEUE_HOST=redis
+      - REDIS_STATE_HOST=redis
+      - WASM_VM=${WASM_VM:-wavm}
+
+  build:
+    image: faasm/examples-build:${EXAMPLES_BUILD_VERSION}
+    working_dir: /code/examples
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/code/examples
+      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
+      - ./dev/faasm-local/shared/:/usr/local/faasm/shared

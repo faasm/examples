@@ -1,0 +1,34 @@
+[submodule "cpp"]
+	path = cpp
+	url = https://github.com/faasm/cpp.git
+[submodule "python"]
+	path = python
+	url = https://github.com/faasm/python.git
+[submodule "examples/lammps"]
+	path = examples/lammps
+	url = https://github.com/faasm/lammps
+	branch = faasm
+[submodule "examples/LULESH"]
+	path = examples/LULESH
+	url = https://github.com/faasm/LULESH.git
+	branch = faasm
+[submodule "examples/FFmpeg"]
+	path = examples/FFmpeg
+	url = https://github.com/faasm/FFmpeg.git
+	branch = faasm
+[submodule "examples/tensorflow"]
+	path = examples/tensorflow
+	url = https://github.com/faasm/tensorflow.git
+	branch = faasm
+[submodule "examples/ImageMagick"]
+	path = examples/ImageMagick
+	url = https://github.com/faasm/ImageMagick.git
+	branch = faasm
+[submodule "examples/libpng"]
+	path = examples/libpng
+	url = https://github.com/faasm/libpng.git
+	branch = faasm
+[submodule "examples/Kernels"]
+	path = examples/Kernels
+	url = https://github.com/faasm/Kernels.git
+	branch = faasm
