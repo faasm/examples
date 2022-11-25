@@ -36,7 +36,7 @@ jobs:
       run:
         working-directory: /code/examples
     container:
-      image: faasm/examples-build:0.1.12_0.1.1
+      image: faasm/examples-build:0.2.0_0.2.0
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v3
@@ -77,12 +77,12 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/examples-run:0.8.17
+      image: faasm/examples-run:0.9.0
     services:
       redis:
-        image: faasm/redis:0.8.17
+        image: faasm/redis:0.9.0
       minio:
-        image: faasm/minio:0.8.17
+        image: faasm/minio:0.9.0
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
