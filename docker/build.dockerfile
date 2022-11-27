@@ -30,6 +30,10 @@ RUN mkdir -p code \
 RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
+    # Build the native versions of the examples that support it
+    && inv \
+        lammps --native \
+        lulesh --native \
     && inv \
         ffmpeg \
         # ImageMagick needs libpng
