@@ -130,7 +130,7 @@ jobs:
           # The stencil OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp stencil --cmdline '10 1000'
-          # ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '10 1024 32 1'
+          ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '2 2 1024 32'
           ./bin/inv_wrapper.sh run.pool kernels-omp nstream --cmdline '2 10 1024 32'
           ./bin/inv_wrapper.sh run.pool kernels-omp reduce --cmdline '2 10 1024'
           # The random OpenMP kernel can not be cross-compiled due to a problem
