@@ -32,9 +32,6 @@ jobs:
   build-examples:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: /code/examples
     container:
       image: faasm/examples-build:0.2.0_0.2.0
     steps:
