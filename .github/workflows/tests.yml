@@ -59,6 +59,12 @@ jobs:
         with:
           name: examples-wasm
           path: /usr/local/faasm/wasm
+      - name: "Copy WASM files to distribute as an artifact"
+        run: ./bin/inv_wrapper.sh wasm
+      - uses: actions/upload-artifact@v3
+        with:
+          name: examples-wasm
+          path: ./wasm
 
   run-examples:
     if: github.event.pull_request.draft == false
