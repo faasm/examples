@@ -65,7 +65,10 @@ def build(ctx, clean=False, native=False):
                 "kernels-mpi",
                 make_target,
                 join(
-                    kernels_dir, "build", "wasm", "mpi_{}.wasm".format(make_target)
+                    kernels_dir,
+                    "build",
+                    "wasm",
+                    "mpi_{}.wasm".format(make_target),
                 ),
             )
 
@@ -95,6 +98,9 @@ def build(ctx, clean=False, native=False):
                 "kernels-omp",
                 make_target,
                 join(
-                    kernels_dir, "build", "wasm", "omp_{}.wasm".format(make_target)
+                    kernels_dir,
+                    "build",
+                    "wasm",
+                    "omp_{}.wasm".format(make_target),
                 ),
             )

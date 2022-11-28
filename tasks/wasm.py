@@ -30,8 +30,6 @@ def copy(ctx, clean=False):
     for wasm_file in wasm_files:
         copyfile(wasm_file["src"], wasm_file["dst"])
 
-    wasm_dirs = [
-        join(EXAMPLES_DIR, "Kernels", "build", "wasm")
-    ]
+    wasm_dirs = [join(EXAMPLES_DIR, "Kernels", "build", "wasm")]
     for wasm_dir in wasm_dirs:
         copy_tree(wasm_dir, WASM_DIR)
