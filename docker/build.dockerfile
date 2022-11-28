@@ -4,9 +4,22 @@ FROM faasm/cpp-sysroot:${CPP_VERSION}
 SHELL ["/bin/bash", "-c"]
 ENV IN_DOCKER="on"
 
-# Install APT dependencies
+# Install OpenMPI
+RUN mkdir -p /tmp \
+    && cd /tmp \
+    && wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2 \
+    && tar xf openmpi-4.1.0.tar.bz2 \
+    && cd /tmp/openmpi-4.1.0 \
+    && ./configure --prefix=/usr/local \
+    && make -j `nproc` \
+    && make install \
+    && cd /tmp \
+    && rm -rf /tmp/openmpi-4.1.0 openmpi-4.1.0.tar.bz2
+
+# Install OpenMP
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update
+RUN apt update \
+    && apt install -y libomp-13-dev
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
@@ -32,6 +45,7 @@ RUN cd /code/examples \
     && source venv/bin/activate \
     # Build the native versions of the examples that support it
     && inv \
+        kernels --native \
         lammps --native \
         lulesh --native \
     && inv \

@@ -1,7 +1,7 @@
 from faasmtools.build import FAASM_BUILD_ENV_DICT
 from faasmtools.compile_util import wasm_copy_upload
 from invoke import task
-from os import environ
+from os import environ, makedirs
 from os.path import join
 from subprocess import run
 from tasks.env import EXAMPLES_DIR
@@ -21,8 +21,22 @@ def build(ctx, clean=False, native=False):
     if clean:
         run("make clean", shell=True, check=True, cwd=kernels_dir)
 
+    if native:
+        makedirs(join(kernels_dir, "build", "native"), exist_ok=True)
+    else:
+        makedirs(join(kernels_dir, "build", "wasm"), exist_ok=True)
+
     work_env = environ.copy()
-    work_env.update(FAASM_BUILD_ENV_DICT)
+    if not native:
+        work_env.update(FAASM_BUILD_ENV_DICT)
+        work_env["FAASM_WASM"] = "on"
+    else:
+        work_env.update(
+            {
+                "LD_LIBRARY_PATH": "/usr/local/lib",
+                "FAASM_WASM": "off",
+            }
+        )
 
     # Build the MPI kernels
     mpi_kernel_targets = [
@@ -40,11 +54,14 @@ def build(ctx, clean=False, native=False):
         make_cmd = "make {}".format(make_target)
         make_dir = join(kernels_dir, subdir)
         run(make_cmd, shell=True, check=True, cwd=make_dir, env=work_env)
-        wasm_copy_upload(
-            "kernels-mpi",
-            make_target,
-            join(kernels_dir, "wasm", "{}.wasm".format(make_target)),
-        )
+        if not native:
+            wasm_copy_upload(
+                "kernels-mpi",
+                make_target,
+                join(
+                    kernels_dir, "build", "wasm", "{}.wasm".format(make_target)
+                ),
+            )
 
     # Clean MPI wasm files
     run("make clean", shell=True, check=True, cwd=kernels_dir)
@@ -69,5 +86,5 @@ def build(ctx, clean=False, native=False):
         wasm_copy_upload(
             "kernels-omp",
             make_target,
-            join(kernels_dir, "wasm", "{}.wasm".format(make_target)),
+            join(kernels_dir, "build", "wasm", "{}.wasm".format(make_target)),
         )
