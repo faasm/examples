@@ -83,8 +83,11 @@ def build(ctx, clean=False, native=False):
         make_cmd = "make {}".format(make_target)
         make_dir = join(kernels_dir, subdir)
         run(make_cmd, shell=True, check=True, cwd=make_dir, env=work_env)
-        wasm_copy_upload(
-            "kernels-omp",
-            make_target,
-            join(kernels_dir, "build", "wasm", "{}.wasm".format(make_target)),
-        )
+        if not native:
+            wasm_copy_upload(
+                "kernels-omp",
+                make_target,
+                join(
+                    kernels_dir, "build", "wasm", "{}.wasm".format(make_target)
+                ),
+            )
