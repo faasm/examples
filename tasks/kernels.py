@@ -3,6 +3,7 @@ from faasmtools.compile_util import wasm_copy_upload
 from invoke import task
 from os import environ, makedirs
 from os.path import join
+from shutil import rmtree
 from subprocess import run
 from tasks.env import EXAMPLES_DIR
 
@@ -20,6 +21,10 @@ def build(ctx, clean=False, native=False):
 
     if clean:
         run("make clean", shell=True, check=True, cwd=kernels_dir)
+        if native:
+            rmtree(join(kernels_dir, "build", "native"))
+        else:
+            rmtree(join(kernels_dir, "build", "wasm"))
 
     if native:
         makedirs(join(kernels_dir, "build", "native"), exist_ok=True)
@@ -39,6 +44,7 @@ def build(ctx, clean=False, native=False):
         )
 
     # Build the MPI kernels
+    work_env["FAASM_KERNEL_TYPE"] = "mpi"
     mpi_kernel_targets = [
         ("MPI1/Synch_global", "global"),
         ("MPI1/Synch_p2p", "p2p"),
@@ -59,7 +65,7 @@ def build(ctx, clean=False, native=False):
                 "kernels-mpi",
                 make_target,
                 join(
-                    kernels_dir, "build", "wasm", "{}.wasm".format(make_target)
+                    kernels_dir, "build", "wasm", "mpi_{}.wasm".format(make_target)
                 ),
             )
 
@@ -67,6 +73,7 @@ def build(ctx, clean=False, native=False):
     run("make clean", shell=True, check=True, cwd=kernels_dir)
 
     # Build the OMP kernels
+    work_env["FAASM_KERNEL_TYPE"] = "omp"
     omp_kernel_targets = [
         ("OPENMP/Synch_global", "global"),
         ("OPENMP/Synch_p2p", "p2p"),
@@ -88,6 +95,6 @@ def build(ctx, clean=False, native=False):
                 "kernels-omp",
                 make_target,
                 join(
-                    kernels_dir, "build", "wasm", "{}.wasm".format(make_target)
+                    kernels_dir, "build", "wasm", "omp_{}.wasm".format(make_target)
                 ),
             )
