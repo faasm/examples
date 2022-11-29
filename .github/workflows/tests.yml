@@ -44,11 +44,11 @@ jobs:
       - name: "Build ImageMagick"
         run: ./bin/inv_wrapper.sh libpng imagemagick
       - name: "Build Kernels"
-        run: ./bin/inv_wrapper.sh kernels
+        run: ./bin/inv_wrapper.sh kernels kernels --native
       - name: "Build LAMMPS"
-        run: ./bin/inv_wrapper.sh lammps
+        run: ./bin/inv_wrapper.sh lammps lammps --native
       - name: "Build Lulesh"
-        run: ./bin/inv_wrapper.sh lulesh
+        run: ./bin/inv_wrapper.sh lulesh lulesh --native
       - name: "Build TensorFlow"
         run: ./bin/inv_wrapper.sh tensorflow
       - name: "Upload examples wasm"
