@@ -51,7 +51,8 @@ RUN cd /code/examples \
     && inv \
         ffmpeg \
         # ImageMagick needs libpng
-        libpng imagemagick \
+        # ImageMagick currently broken with SIMD
+        # libpng imagemagick \
         kernels \
         lammps \
         lulesh \
