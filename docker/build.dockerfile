@@ -60,6 +60,7 @@ RUN cd /code/examples \
     # These demo functions link with the cross-compiled static libraries
     && inv \
         func ffmpeg check \
+        func lammps main \
         func tf check
 
 # Prepare bashrc
