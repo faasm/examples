@@ -10,7 +10,7 @@ from subprocess import run
 
 
 @task(default=True)
-def build(ctx, clean=False, native=False):
+def build(ctx, clean=False, native=False, migration=False):
     """
     Build the LAMMPS molecule dynamics simulator.
 
@@ -18,7 +18,10 @@ def build(ctx, clean=False, native=False):
     executed by passing different command line arguments. As a consequence,
     we cross-compile it and copy the binary (lmp) to lammps/main/function.wasm
     """
-    lammps_dir = join(EXAMPLES_DIR, "lammps")
+    if migration:
+        lammps_dir = join(EXAMPLES_DIR, "lammps-migration")
+    else:
+        lammps_dir = join(EXAMPLES_DIR, "lammps")
     cmake_dir = join(lammps_dir, "cmake")
     if native:
         build_dir = join(lammps_dir, "build", "native")
