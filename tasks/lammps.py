@@ -60,5 +60,7 @@ def build(ctx, clean=False, native=False, migration=False):
     run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
     run("ninja", shell=True, check=True, cwd=build_dir)
 
-    # Copy the binary to lammps/main/function.wasm
-    wasm_copy_upload("lammps", "main", join(build_dir, "lmp"))
+    if not native:
+        # Copy the binary to lammps/main/function.wasm
+        lammps_func_name = "migration" if migration else "main"
+        wasm_copy_upload("lammps", lammps_func_name, join(build_dir, "lmp"))
