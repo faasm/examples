@@ -33,4 +33,5 @@ endfunction(faasm_example_func)
 
 add_subdirectory(ffmpeg)
 add_subdirectory(lammps)
+add_subdirectory(mpi)
 add_subdirectory(tf)

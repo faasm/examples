@@ -61,6 +61,7 @@ RUN cd /code/examples \
     && inv \
         func ffmpeg check \
         func lammps chain \
+        func mpi migrate \
         func tf check
 
 # Prepare bashrc
