@@ -5,6 +5,7 @@ PROJ_ROOT = dirname(dirname(abspath(__file__)))
 DOCKER_ROOT = join(PROJ_ROOT, "docker")
 EXAMPLES_DIR = join(PROJ_ROOT, "examples")
 DEV_FAASM_LOCAL = join(PROJ_ROOT, "dev", "faasm-local")
+WASM_DIR = join(PROJ_ROOT, "wasm")
 
 # Docker variables
 EXAMPLES_BUILD_IMAGE_NAME = "faasm/examples-build"

@@ -7,3 +7,6 @@ dev
 
 # CPP builds
 build
+
+# WASM files
+wasm

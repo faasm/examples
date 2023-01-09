@@ -13,6 +13,7 @@ from . import lammps
 from . import libpng
 from . import lulesh
 from . import tensorflow
+from . import wasm
 
 ns = Collection(
     cli,
@@ -28,4 +29,5 @@ ns = Collection(
     libpng,
     lulesh,
     tensorflow,
+    wasm,
 )

@@ -32,11 +32,8 @@ jobs:
   build-examples:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: /code/examples
     container:
-      image: faasm/examples-build:0.1.12_0.1.1
+      image: faasm/examples-build:0.2.0_0.2.0
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v3
@@ -44,14 +41,15 @@ jobs:
           submodules: true
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
-      - name: "Build ImageMagick"
-        run: ./bin/inv_wrapper.sh libpng imagemagick
+          # ImageMagick not working with SIMD - FIXME
+          # - name: "Build ImageMagick"
+          # run: ./bin/inv_wrapper.sh libpng imagemagick
       - name: "Build Kernels"
-        run: ./bin/inv_wrapper.sh kernels
+        run: ./bin/inv_wrapper.sh kernels kernels --native
       - name: "Build LAMMPS"
-        run: ./bin/inv_wrapper.sh lammps
+        run: ./bin/inv_wrapper.sh lammps lammps --native
       - name: "Build Lulesh"
-        run: ./bin/inv_wrapper.sh lulesh
+        run: ./bin/inv_wrapper.sh lulesh lulesh --native
       - name: "Build TensorFlow"
         run: ./bin/inv_wrapper.sh tensorflow
       - name: "Upload examples wasm"
@@ -59,6 +57,12 @@ jobs:
         with:
           name: examples-wasm
           path: /usr/local/faasm/wasm
+      - name: "Copy WASM files to distribute as an artifact"
+        run: ./bin/inv_wrapper.sh wasm
+      - uses: actions/upload-artifact@v3
+        with:
+          name: examples-wasm
+          path: ./wasm
 
   run-examples:
     if: github.event.pull_request.draft == false
@@ -77,12 +81,12 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/examples-run:0.8.17
+      image: faasm/examples-run:0.9.0
     services:
       redis:
-        image: faasm/redis:0.8.17
+        image: faasm/redis:0.9.0
       minio:
-        image: faasm/minio:0.8.17
+        image: faasm/minio:0.9.0
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
@@ -105,7 +109,8 @@ jobs:
         working-directory: /code/examples
       - name: "Run MPI kernels"
         run: |
-          ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
+          # The global MPI kernel stopped working when enabling SIMD
+          # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
           ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
           ./bin/inv_wrapper.sh run.pool kernels-mpi sparse --cmdline '10 10 5'
           ./bin/inv_wrapper.sh run.pool kernels-mpi transpose --cmdline '10 1024 32'
@@ -130,7 +135,7 @@ jobs:
           # The stencil OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp stencil --cmdline '10 1000'
-          # ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '10 1024 32 1'
+          ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '2 2 1024 32'
           ./bin/inv_wrapper.sh run.pool kernels-omp nstream --cmdline '2 10 1024 32'
           ./bin/inv_wrapper.sh run.pool kernels-omp reduce --cmdline '2 10 1024'
           # The random OpenMP kernel can not be cross-compiled due to a problem
