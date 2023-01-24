@@ -30,6 +30,7 @@ services:
       - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
       - ./dev/faasm-local/shared/:/usr/local/faasm/shared
     environment:
+      - DEFAULT_MPI_WORLD_SIZE=4
       - LOG_LEVEL=info
       - LD_LIBRARY_PATH=/build/faasm/third-party/lib:/usr/local/lib
       - REDIS_QUEUE_HOST=redis
