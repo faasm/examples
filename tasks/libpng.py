@@ -24,13 +24,18 @@ def libpng(ctx, clean=False):
     if clean:
         run("make clean", shell=True, cwd=libpng_dir, check=True)
 
+    # 30/01/2022 - SIMD not working with ImageMagick, so we must also not use
+    # SIMD when building libpng
+    wasm_cflags_nosimd = WASM_CFLAGS
+    wasm_cflags_nosimd.remove("-msimd128")
+
     # Instead of running a complicated configure, we use a simplified makefile
     # under `faasm/libpng/scripts/makefile.wasm` to build _only_ libpng
     make_cmd = [
         "WASM_CC={}".format(WASM_CC),
         "WASM_AR={}".format(WASM_AR),
         "WASM_RANLIB={}".format(WASM_RANLIB),
-        "WASM_CFLAGS='{}'".format(" ".join(WASM_CFLAGS)),
+        "WASM_CFLAGS='{}'".format(" ".join(wasm_cflags_nosimd)),
         "WASM_LDFLAGS='{}'".format(" ".join(WASM_LDFLAGS)),
         "WASM_SYSROOT={}".format(WASM_SYSROOT),
         "make -j",
