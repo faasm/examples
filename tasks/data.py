@@ -16,6 +16,10 @@ def prepare(ctx):
     """
     data_files = [
         [
+            join(DATA_HOST_DIR, "faasm_logo.png"),
+            join(DATA_BASE_DIR, "im", "sample_image.png"),
+        ],
+        [
             join(
                 EXAMPLES_DIR,
                 "lammps",

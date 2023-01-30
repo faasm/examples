@@ -1,7 +1,7 @@
-from faasmtools.env import WASM_DIR
+from faasmtools.build import FAASM_LOCAL_DIR
 from invoke import task
 from os import environ, makedirs
-from os.path import exists, join
+from os.path import exists
 from shutil import rmtree
 from subprocess import run
 from tasks.env import (
@@ -31,8 +31,8 @@ def cli(ctx, service, clean=False):
         )
         run(docker_cmd, shell=True, check=True)
         run(
-            "docker cp examples-build:{} {}".format(
-                WASM_DIR, join(DEV_FAASM_LOCAL, "wasm")
+            "docker cp examples-build:{}/. {}".format(
+                FAASM_LOCAL_DIR, DEV_FAASM_LOCAL
             ),
             shell=True,
             check=True,

@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm/examples-build:0.2.0_0.2.0
+      image: faasm/examples-build:0.2.1_0.2.2
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v3
@@ -41,9 +41,8 @@ jobs:
           submodules: true
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
-          # ImageMagick not working with SIMD - FIXME
-          # - name: "Build ImageMagick"
-          # run: ./bin/inv_wrapper.sh libpng imagemagick
+      - name: "Build ImageMagick"
+        run: ./bin/inv_wrapper.sh libpng imagemagick
       - name: "Build Kernels"
         run: ./bin/inv_wrapper.sh kernels kernels --native
       - name: "Build LAMMPS"
@@ -81,12 +80,12 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/examples-run:0.9.0
+      image: faasm/examples-run:0.9.1
     services:
       redis:
-        image: faasm/redis:0.9.0
+        image: faasm/redis:0.9.1
       minio:
-        image: faasm/minio:0.9.0
+        image: faasm/minio:0.9.1
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
@@ -100,6 +99,7 @@ jobs:
         run: |
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
           ./bin/inv_wrapper.sh codegen.user kernels-omp
+          ./bin/inv_wrapper.sh codegen imagemagick main
           ./bin/inv_wrapper.sh codegen lammps main
           ./bin/inv_wrapper.sh codegen lulesh main
           ./bin/inv_wrapper.sh codegen ffmpeg check
@@ -141,6 +141,8 @@ jobs:
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
+      - name: "Run ImageMagick"
+        run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"

@@ -27,6 +27,25 @@ def imagemagick(ctx, clean=False):
     if clean:
         run("make clean", shell=True, cwd=imagemagick_dir, check=True)
 
+    # 30/01/2022 - SIMD not working with ImageMagick. We manually remove the
+    # flags
+    wasm_cflags_nosimd = WASM_CFLAGS
+    try:
+        wasm_cflags_nosimd.remove("-msimd128")
+    except ValueError:
+        pass
+    wasm_cflags_nosimd.append(
+        "-I{}".format(join(WASM_SYSROOT, "include", "libpng16"))
+    )
+    wasm_ldflags_nosimd = WASM_EXE_LDFLAGS
+    for ldflag in WASM_EXE_LDFLAGS:
+        if "simd128" in ldflag:
+            try:
+                wasm_ldflags_nosimd.remove(ldflag)
+            except ValueError:
+                pass
+            wasm_ldflags_nosimd.append("-Xlinker --no-check-features")
+
     # List of flags inspired from the github project:
     # https://github.com/KnicKnic/WASM-ImageMagick
     # For all the configure options, see:
@@ -35,17 +54,18 @@ def imagemagick(ctx, clean=False):
         "./configure",
         "CC={}".format(WASM_CC),
         "CXX={}".format(WASM_CXX),
-        "CFLAGS='{}'".format(" ".join(WASM_CFLAGS)),
-        "CXXFLAGS='{}'".format(" ".join(WASM_CFLAGS)),
+        "CFLAGS='{}'".format(" ".join(wasm_cflags_nosimd)),
+        "CXXFLAGS='{}'".format(" ".join(wasm_cflags_nosimd)),
         "LD={}".format(WASM_LD),
-        "LDFLAGS='{}'".format(" ".join(WASM_EXE_LDFLAGS)),
-        "CXXLDFLAGS='{}'".format(" ".join(WASM_EXE_LDFLAGS)),
+        "LDFLAGS='{}'".format(" ".join(wasm_ldflags_nosimd)),
+        "CXXLDFLAGS='{}'".format(" ".join(wasm_ldflags_nosimd)),
         "AR={}".format(WASM_AR),
         "RANLIB={}".format(WASM_RANLIB),
         "NM={}".format(WASM_NM),
         "PKG_CONFIG_PATH={}".format(join(EXAMPLES_DIR, "libpng")),
         "--prefix={}".format(WASM_SYSROOT),
         "--disable-largefile",
+        "--disable-modules",
         "--disable-openmp",
         "--disable-shared",
         "--host={}".format(WASM_HOST),
