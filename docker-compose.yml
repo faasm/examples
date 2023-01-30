@@ -27,8 +27,7 @@ services:
     tty: true
     volumes:
       - ./:/code/examples
-      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
-      - ./dev/faasm-local/shared/:/usr/local/faasm/shared
+      - ./dev/faasm-local/:/usr/local/faasm
     environment:
       - DEFAULT_MPI_WORLD_SIZE=4
       - LOG_LEVEL=info
@@ -44,5 +43,4 @@ services:
     tty: true
     volumes:
       - ./:/code/examples
-      - ./dev/faasm-local/wasm/:/usr/local/faasm/wasm
-      - ./dev/faasm-local/shared/:/usr/local/faasm/shared
+      - ./dev/faasm-local/:/usr/local/faasm
