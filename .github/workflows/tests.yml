@@ -41,9 +41,8 @@ jobs:
           submodules: true
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
-          # ImageMagick not working with SIMD - FIXME
-          # - name: "Build ImageMagick"
-          # run: ./bin/inv_wrapper.sh libpng imagemagick
+      - name: "Build ImageMagick"
+        run: ./bin/inv_wrapper.sh libpng imagemagick
       - name: "Build Kernels"
         run: ./bin/inv_wrapper.sh kernels kernels --native
       - name: "Build LAMMPS"
