@@ -30,14 +30,20 @@ def imagemagick(ctx, clean=False):
     # 30/01/2022 - SIMD not working with ImageMagick. We manually remove the
     # flags
     wasm_cflags_nosimd = WASM_CFLAGS
-    wasm_cflags_nosimd.remove("-msimd128")
+    try:
+        wasm_cflags_nosimd.remove("-msimd128")
+    except ValueError:
+        pass
     wasm_cflags_nosimd.append(
         "-I{}".format(join(WASM_SYSROOT, "include", "libpng16"))
     )
     wasm_ldflags_nosimd = WASM_EXE_LDFLAGS
     for ldflag in WASM_EXE_LDFLAGS:
         if "simd128" in ldflag:
-            wasm_ldflags_nosimd.remove(ldflag)
+            try:
+                wasm_ldflags_nosimd.remove(ldflag)
+            except ValueError:
+                pass
             wasm_ldflags_nosimd.append("-Xlinker --no-check-features")
 
     # List of flags inspired from the github project:
