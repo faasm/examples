@@ -180,6 +180,7 @@ jobs:
           repository: faasm/faasm
           # TODO: remove after merge
           ref: wamr-fs
+          submodules: true
       - name: "Re-build targets"
         run: ./bin/inv_wrapper.sh dev.tools --sgx Simulation
       - name: "Run codegen"
