@@ -80,12 +80,12 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/examples-run:0.9.2
+      image: faasm/examples-run:0.9.4
     services:
       redis:
-        image: faasm/redis:0.9.2
+        image: faasm/redis:0.9.4
       minio:
-        image: faasm/minio:0.9.2
+        image: faasm/minio:0.9.4
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
@@ -151,3 +151,42 @@ jobs:
         run: ./bin/inv_wrapper.sh run tf check
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
+
+  run-sgx-examples:
+    if: github.event.pull_request.draft == false
+    needs: [build-examples]
+    runs-on: ubuntu-latest
+    env:
+      WASM_VM: sgx
+    container:
+      image: faasm/examples-run-sgx-sim:0.9.4
+    services:
+      redis:
+        image: faasm/redis:0.9.4
+      minio:
+        image: faasm/minio:0.9.4
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+    steps:
+      - name: "Download examples wasm"
+        uses: actions/download-artifact@v3.0.1
+        with:
+          name: examples-wasm
+          path: /usr/local/faasm/wasm
+      - name: "Checkout latest Faasm code"
+        uses: actions/checkout@v3
+        with:
+          repository: faasm/faasm
+          # TODO: remove after merge
+          ref: wamr-fs
+      - name: "Re-build targets"
+        run: ./bin/inv_wrapper.sh dev.tools --sgx Simulation
+      - name: "Run codegen"
+        run: |
+          ./bin/inv_wrapper.sh codegen imagemagick main
+          ./bin/inv_wrapper.sh codegen tf check
+      - name: "Run ImageMagick"
+        run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+      - name: "Run TFlite check"
+        run: ./bin/inv_wrapper.sh run tf check

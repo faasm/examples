@@ -56,5 +56,5 @@ def get_version(name="build"):
     """
     if name == "build":
         return "{}_{}".format(get_cpp_version(), get_python_version())
-    if name == "run":
+    if name == "run" or name == "run-sgx-sim":
         return "{}".format(get_faasm_version())
