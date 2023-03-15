@@ -25,3 +25,15 @@ def compile(ctx, user, func, clean=False, debug=False):
 
     # Copy into place
     _copy_built_function(user, func)
+
+
+@task
+def tests(ctx, clean=False):
+    """
+    Build the functions used in the tests
+    """
+    funcs = [
+        ["ffmpeg", "check"],
+        # What about LAMMPS
+        ["tf", "check"],
+    ]
