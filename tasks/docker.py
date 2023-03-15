@@ -22,13 +22,16 @@ def get_tag(name):
         image_name = EXAMPLES_BUILD_IMAGE_NAME
     elif name == "run":
         image_name = EXAMPLES_RUN_IMAGE_NAME
+    elif name == "run-sgx-sim":
+        image_name = EXAMPLES_RUN_IMAGE_NAME + "-sgx-sim"
     return "{}:{}".format(image_name, version)
 
 
 @task(iterable=["c"])
 def build(ctx, c, nocache=False, push=False):
     """
-    Build container image, possible containers are `build` and `run`
+    Build container image, possible containers are `build`, `run`,
+    `run-sgx-sim`, and `run-sgx`.
     """
     build_args = {}
     for ctr in c:
@@ -43,6 +46,13 @@ def build(ctx, c, nocache=False, push=False):
             build_args = {
                 "EXAMPLES_VERSION": get_version(),
                 "FAASM_VERSION": get_faasm_version(),
+            }
+            dockerfile = EXAMPLES_RUN_DOCKERFILE
+        elif ctr == "run-sgx-sim":
+            build_args = {
+                "EXAMPLES_VERSION": get_version(),
+                "FAASM_VERSION": get_faasm_version(),
+                "SGX_IMAGE_SUFFIX": "-sgx-sim",
             }
             dockerfile = EXAMPLES_RUN_DOCKERFILE
         else:

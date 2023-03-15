@@ -14,7 +14,7 @@ from tasks.env import (
 
 
 @task(default=True)
-def cli(ctx, service, clean=False):
+def cli(ctx, service, clean=False, sgx=False):
     """
     Get a shell into one of the containers: `build` or `run`
     """
@@ -44,6 +44,7 @@ def cli(ctx, service, clean=False):
         {
             "EXAMPLES_RUN_VERSION": get_faasm_version(),
             "EXAMPLES_BUILD_VERSION": get_version(),
+            "SGX_CLI_SUFFIX": "-sgx-sim" if sgx else "",
         }
     )
     docker_cmd = "docker compose up -d --no-recreate"

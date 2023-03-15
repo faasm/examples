@@ -21,7 +21,7 @@ services:
     depends_on:
       - redis
       - minio
-    image: faasm/examples-run:${EXAMPLES_RUN_VERSION}
+    image: faasm/examples-run${SGX_CLI_SUFFIX}:${EXAMPLES_RUN_VERSION}
     working_dir: /usr/local/code/faasm
     stdin_open: true
     tty: true
