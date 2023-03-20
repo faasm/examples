@@ -83,18 +83,18 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/examples-run:0.9.5
+      image: faasm.azurecr.io/examples-run:0.9.5
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
-        image: faasm/redis:0.9.5
+        image: faasm.azurecr.io/redis:0.9.5
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
       minio:
-        image: faasm/minio:0.9.5
+        image: faasm.azurecr.io/minio:0.9.5
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
