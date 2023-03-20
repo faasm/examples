@@ -1,5 +1,5 @@
 ARG CPP_VERSION
-FROM faasm/cpp-sysroot:${CPP_VERSION}
+FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
 
 SHELL ["/bin/bash", "-c"]
 ENV IN_DOCKER="on"
