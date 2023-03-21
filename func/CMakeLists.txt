@@ -18,7 +18,7 @@ message(STATUS "Detected wasm build (sysroot=$ENV{FAASM_WASM_SYSROOT})")
 set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 
 
-set(FAASM_FUNC_LIBS faasm c-printscan-long-double)
+set(FAASM_FUNC_LIBS faasm)
 
 function(faasm_example_func_c func_name file_name)
     add_executable(${func_name} ${file_name})

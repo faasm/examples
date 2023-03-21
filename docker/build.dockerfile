@@ -54,6 +54,7 @@ RUN cd /code/examples \
         libpng imagemagick \
         kernels \
         lammps \
+        lammps --migration \
         lulesh \
         tensorflow \
     # These demo functions link with the cross-compiled static libraries
