@@ -55,7 +55,7 @@ jobs:
       - name: "Build TensorFlow"
         run: ./bin/inv_wrapper.sh tensorflow
       - name: "Build functions used in the tests"
-        run: ./bin/inv_wrapper.sh func tests
+        run: ./bin/inv_wrapper.sh func.tests
       - name: "Upload examples wasm"
         uses: actions/upload-artifact@v3.1.0
         with:
