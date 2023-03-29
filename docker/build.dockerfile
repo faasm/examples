@@ -35,6 +35,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/ImageMagick \
     && git submodule update --init -f examples/Kernels \
     && git submodule update --init -f examples/lammps \
+    && git submodule update --init -f examples/lammps-migration \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/tensorflow
