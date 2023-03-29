@@ -48,6 +48,7 @@ RUN cd /code/examples \
     && inv \
         kernels --native \
         lammps --native \
+        lammps --migration --native \
         lulesh --native \
     && inv \
         ffmpeg \

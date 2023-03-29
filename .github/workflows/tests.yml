@@ -72,6 +72,10 @@ jobs:
     if: github.event.pull_request.draft == false
     needs: [build-examples]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wasm_vm: [wavm, wamr]
     defaults:
       run:
         working-directory: /usr/local/code/faasm
@@ -111,6 +115,7 @@ jobs:
           path: /usr/local/faasm/wasm
       - name: "Run codegen for all the examples"
         run: |
+          export WASM_VM=${{ matrix.wasm_vm }}
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
           ./bin/inv_wrapper.sh codegen.user kernels-omp
           ./bin/inv_wrapper.sh codegen imagemagick main
@@ -123,6 +128,7 @@ jobs:
         working-directory: /code/examples
       - name: "Run MPI kernels"
         run: |
+          export WASM_VM=${{ matrix.wasm_vm }}
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
           ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
@@ -158,10 +164,14 @@ jobs:
       - name: "Run ImageMagick"
         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
-        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
+        run: |
+          export WASM_VM=${{ matrix.wasm_vm }}
+          ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
       - name: "Run TFlite check"
-        run: ./bin/inv_wrapper.sh run tf check
+        run: |
+          export WASM_VM=${{ matrix.wasm_vm }}
+          ./bin/inv_wrapper.sh run tf check
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
