@@ -128,7 +128,6 @@ jobs:
         working-directory: /code/examples
       - name: "Run MPI kernels"
         run: |
-          export WASM_VM=${{ matrix.wasm_vm }}
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
           ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
