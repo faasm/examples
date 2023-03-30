@@ -88,6 +88,7 @@ jobs:
       OVERRIDE_CPU_COUNT: 30
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
+      WASM_VM: ${{ matrix.wasm_vm }}
     container:
       image: faasm.azurecr.io/examples-run:0.9.5
       credentials:
@@ -115,7 +116,6 @@ jobs:
           path: /usr/local/faasm/wasm
       - name: "Run codegen for all the examples"
         run: |
-          export WASM_VM=${{ matrix.wasm_vm }}
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
           ./bin/inv_wrapper.sh codegen.user kernels-omp
           ./bin/inv_wrapper.sh codegen imagemagick main
@@ -142,6 +142,7 @@ jobs:
           # The random MPI kernel does not work because we are missing
           # implementations for MPI_Alltoallv
           # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
+        if: ${{ matrix.wasm_vm }} == 'wavm'
       - name: "Run OpenMP kernels"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
@@ -160,17 +161,16 @@ jobs:
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
+        if: ${{ matrix.wasm_vm }} == 'wavm'
       - name: "Run ImageMagick"
         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+        if: ${{ matrix.wasm_vm }} == 'wavm'
       - name: "Run LAMMPS"
-        run: |
-          export WASM_VM=${{ matrix.wasm_vm }}
-          ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
+        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
+        if: ${{ matrix.wasm_vm }} == 'wavm'
       - name: "Run TFlite check"
-        run: |
-          export WASM_VM=${{ matrix.wasm_vm }}
-          ./bin/inv_wrapper.sh run tf check
+        run: ./bin/inv_wrapper.sh run tf check
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
