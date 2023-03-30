@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm.azurecr.io/examples-build:0.2.4_0.2.5
+      image: faasm.azurecr.io/examples-build:0.2.5_0.2.5
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
@@ -90,18 +90,18 @@ jobs:
       REDIS_STATE_HOST: redis
       WASM_VM: ${{ matrix.wasm_vm }}
     container:
-      image: faasm.azurecr.io/examples-run:0.9.5
+      image: faasm.azurecr.io/examples-run:0.9.6
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
-        image: faasm.azurecr.io/redis:0.9.5
+        image: faasm.azurecr.io/redis:0.9.6
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
       minio:
-        image: faasm.azurecr.io/minio:0.9.5
+        image: faasm.azurecr.io/minio:0.9.6
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
