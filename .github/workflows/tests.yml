@@ -29,6 +29,26 @@ jobs:
       - name: "Format code"
         run: ./bin/inv_wrapper.sh format-code --check
 
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wasm_vm: [wavm, wamr]
+    env:
+      WASM_VM: ${{ matrix.wasm_vm }}
+    steps:
+      - name: "Condition 1"
+        if: ${{ matrix.wasm_vm }} == "wavm"
+        run: echo "hello world"
+      - name: "Condition 2"
+        if: ${{ matrix.wasm_vm }} == wavm
+        run: echo "hello world"
+      - name: "Condition 3"
+        if: "contains(env.WASM_VM, 'wavm')"
+        run: echo "hello world"
+
+
   build-examples:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
