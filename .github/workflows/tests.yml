@@ -29,26 +29,6 @@ jobs:
       - name: "Format code"
         run: ./bin/inv_wrapper.sh format-code --check
 
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        wasm_vm: [wavm, wamr]
-    env:
-      WASM_VM: ${{ matrix.wasm_vm }}
-    steps:
-      - name: "Condition 1"
-        if: ${{ matrix.wasm_vm }} == "wavm"
-        run: echo "hello world"
-      - name: "Condition 2"
-        if: ${{ matrix.wasm_vm }} == wavm
-        run: echo "hello world"
-      - name: "Condition 3"
-        if: "contains(env.WASM_VM, 'wavm')"
-        run: echo "hello world"
-
-
   build-examples:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -147,7 +127,7 @@ jobs:
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
       - name: "Run MPI kernels"
-        if: ${{ matrix.wasm_vm }} == wavm
+        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
@@ -164,6 +144,7 @@ jobs:
           # implementations for MPI_Alltoallv
           # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
       - name: "Run OpenMP kernels"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
           ./bin/inv_wrapper.sh run.pool kernels-omp p2p --cmdline '2 10 1024 1024'
@@ -181,16 +162,16 @@ jobs:
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
-          # if: "${{ matrix.wasm_vm }}" == "wavm"
       - name: "Run ImageMagick"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
-          # if: "${{ matrix.wasm_vm }}" == "wavm"
       - name: "Run LAMMPS"
         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
-          # if: "${{ matrix.wasm_vm }}" == "wavm"
       - name: "Run TFlite check"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run tf check
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
