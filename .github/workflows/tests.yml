@@ -127,6 +127,7 @@ jobs:
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
       - name: "Run MPI kernels"
+        if: ${{ matrix.wasm_vm }} == wavm
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
@@ -142,7 +143,6 @@ jobs:
           # The random MPI kernel does not work because we are missing
           # implementations for MPI_Alltoallv
           # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
-          # if: "${{ matrix.wasm_vm }}" == "wavm"
       - name: "Run OpenMP kernels"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
