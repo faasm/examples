@@ -1,10 +1,6 @@
-ARG CPP_VERSION
-FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
+FROM ubuntu:22.04 as base
 
-SHELL ["/bin/bash", "-c"]
-ENV IN_DOCKER="on"
-
-# Install OpenMPI
+# Download and build MPI
 RUN mkdir -p /tmp \
     && cd /tmp \
     && wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2 \
@@ -12,6 +8,18 @@ RUN mkdir -p /tmp \
     && cd /tmp/openmpi-4.1.0 \
     && ./configure --prefix=/usr/local \
     && make -j `nproc` \
+
+ARG CPP_VERSION
+FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
+
+SHELL ["/bin/bash", "-c"]
+ENV IN_DOCKER="on"
+
+# Copy built OpenMPI from previous step
+COPY --from=build /tmp/openmpi-4.1.0/ /tmp/openmpi-4.1.0/
+
+# Install OpenMPI
+RUN cd /tmp/openmpi-4.1.0 \
     && make install \
     && cd /tmp \
     && rm -rf /tmp/openmpi-4.1.0 openmpi-4.1.0.tar.bz2
