@@ -1,17 +1,34 @@
 ARG CPP_VERSION
-FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
+FROM ubuntu:22.04 as base
 
-SHELL ["/bin/bash", "-c"]
-ENV IN_DOCKER="on"
+RUN apt update \
+    && apt install -y \
+        bzip2 \
+        gcc \
+        g++ \
+        make \
+        wget
 
-# Install OpenMPI
+# Download and build MPI
 RUN mkdir -p /tmp \
     && cd /tmp \
     && wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2 \
     && tar xf openmpi-4.1.0.tar.bz2 \
     && cd /tmp/openmpi-4.1.0 \
     && ./configure --prefix=/usr/local \
-    && make -j `nproc` \
+    && make -j `nproc`
+
+ARG CPP_VERSION
+FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
+
+SHELL ["/bin/bash", "-c"]
+ENV IN_DOCKER="on"
+
+# Copy built OpenMPI from previous step
+COPY --from=base /tmp/openmpi-4.1.0/ /tmp/openmpi-4.1.0/
+
+# Install OpenMPI
+RUN cd /tmp/openmpi-4.1.0 \
     && make install \
     && cd /tmp \
     && rm -rf /tmp/openmpi-4.1.0 openmpi-4.1.0.tar.bz2
@@ -35,6 +52,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/ImageMagick \
     && git submodule update --init -f examples/Kernels \
     && git submodule update --init -f examples/lammps \
+    && git submodule update --init -f examples/lammps-migration \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/tensorflow
@@ -47,6 +65,7 @@ RUN cd /code/examples \
     && inv \
         kernels --native \
         lammps --native \
+        lammps --migration --native \
         lulesh --native \
     && inv \
         ffmpeg \

@@ -1,3 +1,4 @@
+from faasmtools.docker import ACR_NAME
 from faasmtools.env import get_version as get_cpp_version
 from os.path import dirname, abspath, join
 
@@ -8,9 +9,9 @@ DEV_FAASM_LOCAL = join(PROJ_ROOT, "dev", "faasm-local")
 WASM_DIR = join(PROJ_ROOT, "wasm")
 
 # Docker variables
-EXAMPLES_BUILD_IMAGE_NAME = "faasm/examples-build"
+EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
-EXAMPLES_RUN_IMAGE_NAME = "faasm/examples-run"
+EXAMPLES_RUN_IMAGE_NAME = "{}/examples-run".format(ACR_NAME)
 EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
 
 

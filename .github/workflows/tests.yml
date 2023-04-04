@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm.azurecr.io/examples-build:0.2.4_0.2.5
+      image: faasm.azurecr.io/examples-build:0.2.5_0.2.5
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
@@ -72,6 +72,10 @@ jobs:
     if: github.event.pull_request.draft == false
     needs: [build-examples]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wasm_vm: [wavm, wamr]
     defaults:
       run:
         working-directory: /usr/local/code/faasm
@@ -84,19 +88,20 @@ jobs:
       OVERRIDE_CPU_COUNT: 30
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
+      WASM_VM: ${{ matrix.wasm_vm }}
     container:
-      image: faasm.azurecr.io/examples-run:0.9.5
+      image: faasm.azurecr.io/examples-run:0.9.6
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
-        image: faasm.azurecr.io/redis:0.9.5
+        image: faasm.azurecr.io/redis:0.9.6
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
       minio:
-        image: faasm.azurecr.io/minio:0.9.5
+        image: faasm.azurecr.io/minio:0.9.6
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
@@ -122,6 +127,7 @@ jobs:
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
       - name: "Run MPI kernels"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
@@ -138,6 +144,7 @@ jobs:
           # implementations for MPI_Alltoallv
           # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
       - name: "Run OpenMP kernels"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
           ./bin/inv_wrapper.sh run.pool kernels-omp p2p --cmdline '2 10 1024 1024'
@@ -156,12 +163,15 @@ jobs:
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
       - name: "Run ImageMagick"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
       - name: "Run TFlite check"
+        if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run tf check
       - name: "Run FFmpeg check"
         run: ./bin/inv_wrapper.sh run ffmpeg check
