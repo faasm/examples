@@ -31,7 +31,7 @@ COPY --from=base /tmp/openmpi-4.1.0/ /tmp/openmpi-4.1.0/
 RUN cd /tmp/openmpi-4.1.0 \
     && make install \
     && cd /tmp \
-    && rm -rf /tmp/openmpi-4.1.0 openmpi-4.1.0.tar.bz2
+    && rm -rf /tmp/openmpi-4.1.0 /tmp/openmpi-4.1.0.tar.bz2
 
 # Install OpenMP
 ARG DEBIAN_FRONTEND=noninteractive
