@@ -7,9 +7,40 @@ cross-compiled to WebAssembly for their use with Faasm.
 > that they are listed here does not mean that they still run, or that they
 > are supported in any way.
 
+## Quick Start
+
+To cross-compile any of the supported applications for its usage with Faasm,
+you must first start the build client:
+
+```bash
+source ./bin/workon.sh
+inv cli build
+```
+
+Inside the build client, you can list the available tasks, and cross-compile
+any of the supported libraries/applications:
+
+```bash
+inv -l
+inv lammps [--clean]
+```
+
+You can access the generated WASM file both from inside and outside the build
+client container.
+
+```bash
+# Outside the container
+ls ./dev/faasm-local/wasm
+
+# For LAMMPS
+file ./dev/faasm-local/wasm/lammps/main/function.wasm
+```
+
+This WASM file is ready to be uploaded to a Faasm cluster using the HTTP API.
+
 ## List of examples
 
-| Project Name | Language | Notes |
+| Project Name | WAVM | WAMR | WAMR + SGX |
 | --- | --- | --- |
 | [FFmpeg](https://github.com/faasm/FFmpeg) | C, C++ | Static library |
 | [Kernels](https://github.com/faasm/Kernels) | C, C++ | OpenMP, MPI |
