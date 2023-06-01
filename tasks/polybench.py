@@ -50,9 +50,18 @@ def build(ctx, clean=False, native=False):
     work_env.update(FAASM_BUILD_ENV_DICT)
 
     run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
-    run("cmake --build . --target polybench_all", shell=True, check=True, cwd=build_dir)
+    run(
+        "cmake --build . --target polybench_all",
+        shell=True,
+        check=True,
+        cwd=build_dir,
+    )
 
     if not native:
         # Copy all the functions to /usr/local/faasm/wasm/polybench/*
-        for poly_func in [f for f in listdir(build_dir) if f.startswith("poly_")]:
-            wasm_copy_upload("polybench", poly_func, join(build_dir, poly_func))
+        for poly_func in [
+            f for f in listdir(build_dir) if f.startswith("poly_")
+        ]:
+            wasm_copy_upload(
+                "polybench", poly_func, join(build_dir, poly_func)
+            )
