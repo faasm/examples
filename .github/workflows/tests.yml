@@ -88,6 +88,8 @@ jobs:
       LOG_LEVEL: info
       NETNS_MODE: off
       OVERRIDE_CPU_COUNT: 30
+      PLANNER_HOST: planner
+      PLANNER_PORT: 8080
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
       WASM_VM: ${{ matrix.wasm_vm }}
@@ -110,6 +112,8 @@ jobs:
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
+      planner:
+        image: faasm.azurecr.io/planner:0.4.4
     steps:
       - name: "Download examples wasm"
         uses: actions/download-artifact@v3.0.1
