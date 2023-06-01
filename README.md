@@ -41,14 +41,15 @@ This WASM file is ready to be uploaded to a Faasm cluster using the HTTP API.
 ## List of examples
 
 | Project Name | WAVM | WAMR | WAMR + SGX |
-| --- | --- | --- |
-| [FFmpeg](https://github.com/faasm/FFmpeg) | C, C++ | Static library |
-| [Kernels](https://github.com/faasm/Kernels) | C, C++ | OpenMP, MPI |
-| [LAMMPS](https://github.com/faasm/lammps) | C++ | MPI |
-| [libpng](https://github.com/faasm/libpng) | C | Static library |
-| [ImageMagick](https://github.com/faasm/ImageMagick) | C++ | Needs libpng |
-| [LULESH](https://github.com/faasm/LULESH) | C++ | OpenMP |
-| [Tensorflow](https://github.com/faasm/tensorflow) | C++ | Static library |
+| --- | --- | --- | --- |
+| [FFmpeg](https://github.com/faasm/FFmpeg) | :white_check_mark: | :white_check_mark: | :x: |
+| [Kernels](https://github.com/faasm/Kernels) | :white_check_mark: | :x: | :x: |
+| [LAMMPS](https://github.com/faasm/lammps) | :white_check_mark: | :white_check_mark: | :x: |
+| [libpng](https://github.com/faasm/libpng) | :white_check_mark: | :white_check_mark: | :x: |
+| [ImageMagick](https://github.com/faasm/ImageMagick) | :white_check_mark: | :white_check_mark: | :x: |
+| [LULESH](https://github.com/faasm/LULESH) | :white_check_mark: | :x: | :x: |
+| [PolyBench/C](https://github.com/faasm/polybench) | :white_check_mark: | :white_check_mark: | :x: |
+| [Tensorflow](https://github.com/faasm/tensorflow) | :white_check_mark: | :white_check_mark: | :x: |
 
 ## Bumping C++, Python, or Faasm's version
 
@@ -58,11 +59,25 @@ https://github.com/faasm/faasm). As a consequence, it is versioned with the
 versions of the previous.
 
 If you want to upgrade the Python or C++ tag, you must update the submodule
-and the GHA file. If you want to update the Faasm tag, you must update the
-`FAASM_VERSION` file, and the GHA file. Then, re-build the container images
-with:
+and the files that track either version. You can do:
 
 ```bash
+cd cpp
+git pull origin main
+cd ..
+inv git.bump cpp
+```
+
+Similarly, for Faasm you can just do:
+
+```bash
+inv git.bump faasm [--ver=<specific_version>]
+```
+
+Then, tag the new version and re-build the docker images:
+
+```bash
+inv git.tag
 inv docker.build -c build -c run --nocache --push
 ```
 
