@@ -55,6 +55,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/lammps-migration \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
+    && git submodule update --init -f examples/polybench \
     && git submodule update --init -f examples/tensorflow
 
 # Build the examples and demo functions
@@ -67,6 +68,7 @@ RUN cd /code/examples \
         lammps --native \
         lammps --migration --native \
         lulesh --native \
+        polybench --native \
     && inv \
         ffmpeg \
         # ImageMagick needs libpng
@@ -75,6 +77,7 @@ RUN cd /code/examples \
         lammps \
         lammps --migration \
         lulesh \
+        polybench \
         tensorflow \
     # These demo functions link with the cross-compiled static libraries
     && inv \
