@@ -36,3 +36,6 @@
 	path = examples/lammps-migration
 	url = https://github.com/faasm/lammps.git
 	branch = faasm-migration
+[submodule "examples/polybench"]
+	path = examples/polybench
+	url = git@github.com:faasm/polybench.git
