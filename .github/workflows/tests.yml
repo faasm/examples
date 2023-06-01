@@ -54,6 +54,8 @@ jobs:
         run: ./bin/inv_wrapper.sh lulesh lulesh --native
       - name: "Build TensorFlow"
         run: ./bin/inv_wrapper.sh tensorflow
+      - name: "Build PolyBench/C"
+        run: ./bin/inv_wrapper.sh polybench polybench --native
       - name: "Build functions used in the tests"
         run: ./bin/inv_wrapper.sh func.tests
       - name: "Upload examples wasm"
@@ -118,6 +120,7 @@ jobs:
         run: |
           ./bin/inv_wrapper.sh codegen.user kernels-mpi
           ./bin/inv_wrapper.sh codegen.user kernels-omp
+          ./bin/inv_wrapper.sh codegen.user polybench
           ./bin/inv_wrapper.sh codegen imagemagick main
           ./bin/inv_wrapper.sh codegen lammps main
           ./bin/inv_wrapper.sh codegen lulesh main
@@ -162,6 +165,35 @@ jobs:
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
+      - name: "Run PolyBench/C"
+        # We deliberately enumerate all the supported functions here and
+        # execute them individually, rather than using the microbench runner.
+        # This is so that we can more easily track what functions are supported
+        # and what functions are not
+        run: |
+          ./bin/inv_wrapper.sh run polybench poly_covariance
+          ./bin/inv_wrapper.sh run polybench poly_correlation
+          ./bin/inv_wrapper.sh run polybench poly_2mm
+          ./bin/inv_wrapper.sh run polybench poly_3mm
+          ./bin/inv_wrapper.sh run polybench poly_atax
+          ./bin/inv_wrapper.sh run polybench poly_bicg
+          ./bin/inv_wrapper.sh run polybench poly_doitgen
+          ./bin/inv_wrapper.sh run polybench poly_mvt
+          ./bin/inv_wrapper.sh run polybench poly_cholesky
+          ./bin/inv_wrapper.sh run polybench poly_durbin
+          ./bin/inv_wrapper.sh run polybench poly_gramschmidt
+          ./bin/inv_wrapper.sh run polybench poly_lu
+          ./bin/inv_wrapper.sh run polybench poly_ludcmp
+          ./bin/inv_wrapper.sh run polybench poly_trisolv
+          ./bin/inv_wrapper.sh run polybench poly_deriche
+          ./bin/inv_wrapper.sh run polybench poly_floyd-warshall
+          ./bin/inv_wrapper.sh run polybench poly_nussinov
+          ./bin/inv_wrapper.sh run polybench poly_adi
+          ./bin/inv_wrapper.sh run polybench poly_fdtd-2d
+          ./bin/inv_wrapper.sh run polybench poly_heat-3d
+          ./bin/inv_wrapper.sh run polybench poly_jacobi-1d
+          ./bin/inv_wrapper.sh run polybench poly_jacobi-2d
+          ./bin/inv_wrapper.sh run polybench poly_seidel-2d
       - name: "Run ImageMagick"
         if: "contains(env.WASM_VM, 'wavm')"
         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'

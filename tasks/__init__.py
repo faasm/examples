@@ -12,6 +12,7 @@ from . import kernels
 from . import lammps
 from . import libpng
 from . import lulesh
+from . import polybench
 from . import tensorflow
 from . import wasm
 
@@ -28,6 +29,7 @@ ns = Collection(
     lammps,
     libpng,
     lulesh,
+    polybench,
     tensorflow,
     wasm,
 )
