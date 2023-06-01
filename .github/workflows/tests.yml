@@ -127,7 +127,6 @@ jobs:
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
       - name: "Run MPI kernels"
-        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
