@@ -9,8 +9,8 @@ from tasks.env import (
 
 VERSIONED_FILES = {
     "faasm": ["FAASM_VERSION", ".github/workflows/tests.yml"],
-    "cpp": [".env", ".github/workflows/tests.yml"],
-    "python": [".env", ".github/workflows/tests.yml"],
+    "cpp": [".github/workflows/tests.yml"],
+    "python": [".github/workflows/tests.yml"],
 }
 
 
