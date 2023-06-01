@@ -4,6 +4,12 @@ services:
   redis:
     image: faasm.azurecr.io/redis:${EXAMPLES_RUN_VERSION}
 
+  planner:
+    image: faasm.azurecr.io/planner:0.4.4
+    environment:
+      - LOG_LEVEL=info
+      - PLANNER_PORT=8081
+
   minio:
     image: faasm.azurecr.io/minio:${EXAMPLES_RUN_VERSION}
     environment:

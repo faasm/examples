@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm.azurecr.io/examples-build:0.2.5_0.2.5
+      image: faasm.azurecr.io/examples-build:0.2.7_0.2.5
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
@@ -88,28 +88,32 @@ jobs:
       LOG_LEVEL: info
       NETNS_MODE: off
       OVERRIDE_CPU_COUNT: 30
+      PLANNER_HOST: planner
+      PLANNER_PORT: 8080
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
       WASM_VM: ${{ matrix.wasm_vm }}
     container:
-      image: faasm.azurecr.io/examples-run:0.9.6
+      image: faasm.azurecr.io/examples-run:0.9.9
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
-        image: faasm.azurecr.io/redis:0.9.6
+        image: faasm.azurecr.io/redis:0.9.9
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
       minio:
-        image: faasm.azurecr.io/minio:0.9.6
+        image: faasm.azurecr.io/minio:0.9.9
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
+      planner:
+        image: faasm.azurecr.io/planner:0.4.4
     steps:
       - name: "Download examples wasm"
         uses: actions/download-artifact@v3.0.1
