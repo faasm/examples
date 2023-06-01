@@ -92,18 +92,18 @@ jobs:
       REDIS_STATE_HOST: redis
       WASM_VM: ${{ matrix.wasm_vm }}
     container:
-      image: faasm.azurecr.io/examples-run:0.9.6
+      image: faasm.azurecr.io/examples-run:0.9.9
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
-        image: faasm.azurecr.io/redis:0.9.6
+        image: faasm.azurecr.io/redis:0.9.9
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
       minio:
-        image: faasm.azurecr.io/minio:0.9.6
+        image: faasm.azurecr.io/minio:0.9.9
         credentials:
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
