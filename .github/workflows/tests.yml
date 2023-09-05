@@ -113,7 +113,7 @@ jobs:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
       planner:
-        image: faasm.azurecr.io/planner:0.4.4
+        image: faasm.azurecr.io/planner:0.7.0
     steps:
       - name: "Download examples wasm"
         uses: actions/download-artifact@v3.0.1
