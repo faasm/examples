@@ -55,12 +55,15 @@ def get_faabric_version(old_faasm_ver, new_faasm_ver):
     Get the faabric version by `wget`-ing the FAASM version file for the tagged
     Faasm version
     """
+
     def do_get_ver(faasm_ver):
         tmp_file = "/tmp/faabric_version"
         wget_cmd = [
             "wget",
             "-O {}".format(tmp_file),
-            "https://raw.githubusercontent.com/faasm/faasm/v{}/.env".format(faasm_ver),
+            "https://raw.githubusercontent.com/faasm/faasm/v{}/.env".format(
+                faasm_ver
+            ),
         ]
         wget_cmd = " ".join(wget_cmd)
         out = run(wget_cmd, shell=True, capture_output=True)

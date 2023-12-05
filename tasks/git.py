@@ -54,7 +54,7 @@ def bump(ctx, submodule, ver=None):
         if ver:
             new_ver = ver
         else:
-            raise RuntimeError("Must provide a version with --ver flag!");
+            raise RuntimeError("Must provide a version with --ver flag!")
 
         # Replace version in all files
         for f in VERSIONED_FILES["faasm"]:
