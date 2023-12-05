@@ -29,8 +29,42 @@ jobs:
       - name: "Format code"
         run: ./bin/inv_wrapper.sh format-code --check
 
-  build-examples:
+  # Work-out whether we need to re-build the examples. We need to re-build the
+  # examples if either _any_ fo the examples has changed, or the WASM cache
+  # has expired
+  needs-build:
     if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    outputs:
+      needs-wasm: ${{ (steps.filter.outputs.examples-changed == 'true') || (steps.wasm-cache.outputs.cache-hit != 'true') }}
+    steps:
+    - name: "Checkout code"
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    # Check if any of the submodules have been modified
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          examples-changed:
+            - './examples/**'
+    # Check if we have a WASM cache hit
+    - name: "Get CPP/Python commits"
+      id: submodule-commit
+      run: |
+        echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+        echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+    - uses: actions/cache/restore@v3.3.1
+      id: wasm-cache
+      with:
+        path: ./wasm
+        key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+        lookup-only: true
+
+  build-examples:
+    needs: needs-build
+    if: ${{ needs.needs-build.outputs.needs-wasm == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: faasm.azurecr.io/examples-build:0.3.1_0.3.1
@@ -39,7 +73,7 @@ jobs:
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: "Build FFmpeg"
@@ -71,8 +105,12 @@ jobs:
           path: ./wasm
 
   run-examples:
-    if: github.event.pull_request.draft == false
     needs: [build-examples]
+    if:
+      always() &&
+      !cancelled() &&
+      github.event.pull_request.draft == false &&
+      (needs.build-examples.result == 'success' || needs.build-examples.result == 'skipped')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -134,7 +172,6 @@ jobs:
         run: ./bin/inv_wrapper.sh data
         working-directory: /code/examples
       - name: "Run MPI kernels"
-        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
