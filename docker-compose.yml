@@ -5,7 +5,7 @@ services:
     image: faasm.azurecr.io/redis:${EXAMPLES_RUN_VERSION}
 
   planner:
-    image: faasm.azurecr.io/planner:0.4.4
+    image: faasm.azurecr.io/planner:0.10.0
     environment:
       - LOG_LEVEL=info
       - PLANNER_PORT=8081
