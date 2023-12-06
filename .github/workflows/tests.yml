@@ -26,6 +26,8 @@ jobs:
         with:
           submodules: true
       # --- Formatting ---
+      - name: "Install faasmctl"
+        run: pip3 install $(cat ./requirements.txt | grep faasmctl | tr -d '\n')
       - name: "Format code"
         run: ./bin/inv_wrapper.sh format-code --check
 
@@ -103,6 +105,7 @@ jobs:
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
       - name: "Prepare WASM cache"
         uses: actions/cache@v3.3.1
+        with:
           path: /usr/local/faasm/wasm
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
 
