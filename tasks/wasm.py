@@ -47,8 +47,6 @@ def upload(ctx):
     """
     Upload all WASM and shared data to a Faasm cluster
     """
-    # TODO: delete this line
-    WASM_DIR = join(PROJ_ROOT, "dev", "faasm-local", "wasm")
     if not exists(WASM_DIR):
         print("Expected WASM files to be available in {}".format(WASM_DIR))
         raise RuntimeError("WASM directory not found!")
