@@ -162,6 +162,8 @@ jobs:
         run: |
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git submodule update --init ./cpp
+          git submodule update --init ./python
           echo "cpp-commit=$(git submodule status ./clients/cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./clients/python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
       - name: "Get Cpp WASM cache"
