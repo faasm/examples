@@ -55,7 +55,7 @@ jobs:
       - name: "Get CPP/Python commits"
         id: submodule-commit
         run: |
-          apt install -y zstd
+          sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
