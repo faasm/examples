@@ -61,7 +61,7 @@ jobs:
         id: wasm-cache
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
           lookup-only: true
 
   build-examples:
@@ -105,7 +105,7 @@ jobs:
         uses: actions/cache@v3.3.1
         with:
           path: /usr/local/faasm/wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
 
   run-examples-faasmctl:
     needs: [build-examples]
@@ -169,7 +169,7 @@ jobs:
         id: cpp-wasm-cache
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
       - name: "Upload all WASM files to the cluster"
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Run MPI kernels"
