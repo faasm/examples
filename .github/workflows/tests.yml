@@ -26,8 +26,6 @@ jobs:
         with:
           submodules: true
       # --- Formatting ---
-      - name: "Install faasmctl"
-        run: pip3 install $(cat ./requirements.txt | grep faasmctl | tr -d '\n')
       - name: "Format code"
         run: ./bin/inv_wrapper.sh format-code --check
 
@@ -42,8 +40,6 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-        with:
-          submodules: true
       # Check if any of the submodules have been modified
       - uses: dorny/paths-filter@v2
         id: filter
@@ -55,6 +51,8 @@ jobs:
       - name: "Get CPP/Python commits"
         id: submodule-commit
         run: |
+          git submodule update --init ./cpp
+          git submodule update --init ./python
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
