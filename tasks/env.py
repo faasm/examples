@@ -1,3 +1,4 @@
+from faasmtools.build import FAASM_LOCAL_DIR
 from faasmtools.docker import ACR_NAME
 from faasmtools.env import get_version as get_cpp_version
 from os.path import dirname, abspath, join
@@ -15,6 +16,38 @@ EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
 EXAMPLES_RUN_IMAGE_NAME = "{}/examples-run".format(ACR_NAME)
 EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
+
+# Shared files data
+EXAMPLES_DATA_BASE_DIR = join(FAASM_LOCAL_DIR, "shared")
+EXAMPLES_DATA_HOST_DIR = join(PROJ_ROOT, "data")
+EXAMPLES_DATA_FILES = [
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "faasm_logo.png"),
+        join(EXAMPLES_DATA_BASE_DIR, "im", "sample_image.png"),
+    ],
+    [
+        join(
+            EXAMPLES_DIR,
+            "lammps",
+            "examples",
+            "controller",
+            "in.controller.wall",
+        ),
+        join(EXAMPLES_DATA_BASE_DIR, "lammps-data", "in.controller.wall"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "ffmpeg_video.mp4"),
+        join(EXAMPLES_DATA_BASE_DIR, "ffmpeg", "sample_video.mp4"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "sample_model.tflite"),
+        join(EXAMPLES_DATA_BASE_DIR, "tflite", "sample_model.tflite"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "grace_hopper.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "tflite", "grace_hopper.bmp"),
+    ],
+]
 
 
 def get_submodule_version(submodule):

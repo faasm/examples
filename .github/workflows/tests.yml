@@ -22,7 +22,7 @@ jobs:
     steps:
       # --- Update code ---
       - name: "Checkout code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       # --- Formatting ---
@@ -38,29 +38,31 @@ jobs:
     outputs:
       needs-wasm: ${{ (steps.filter.outputs.examples-changed == 'true') || (steps.wasm-cache.outputs.cache-hit != 'true') }}
     steps:
-    - name: "Checkout code"
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    # Check if any of the submodules have been modified
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          examples-changed:
-            - './examples/**'
-    # Check if we have a WASM cache hit
-    - name: "Get CPP/Python commits"
-      id: submodule-commit
-      run: |
-        echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-        echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-    - uses: actions/cache/restore@v3.3.1
-      id: wasm-cache
-      with:
-        path: ./wasm
-        key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
-        lookup-only: true
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      # Check if any of the submodules have been modified
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            examples-changed:
+              - './examples/**'
+      # Check if we have a WASM cache hit
+      - name: "Get CPP/Python commits"
+        id: submodule-commit
+        run: |
+          apt install -y zstd
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+      - uses: actions/cache/restore@v3.3.1
+        id: wasm-cache
+        with:
+          path: ./wasm
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+          lookup-only: true
 
   build-examples:
     needs: needs-build
@@ -92,19 +94,19 @@ jobs:
         run: ./bin/inv_wrapper.sh polybench polybench --native
       - name: "Build functions used in the tests"
         run: ./bin/inv_wrapper.sh func.tests
-      - name: "Upload examples wasm"
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          name: examples-wasm
+      - name: "Get CPP/Python commits"
+        id: submodule-commit
+        run: |
+          apt install -y zstd
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+      - name: "Prepare WASM cache"
+        uses: actions/cache@v3.3.1
           path: /usr/local/faasm/wasm
-      - name: "Copy WASM files to distribute as an artifact"
-        run: ./bin/inv_wrapper.sh wasm
-      - uses: actions/upload-artifact@v3
-        with:
-          name: examples-wasm
-          path: ./wasm
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
 
-  run-examples:
+  run-examples-faasmctl:
     needs: [build-examples]
     if:
       always() &&
@@ -118,133 +120,276 @@ jobs:
         wasm_vm: [wavm, wamr]
     defaults:
       run:
-        working-directory: /usr/local/code/faasm
+        shell: bash
     env:
-      CGROUP_MODE: off
-      DEFAULT_MPI_WORLD_SIZE: 4
-      HOST_TYPE: ci
-      LOG_LEVEL: info
-      NETNS_MODE: off
-      OVERRIDE_CPU_COUNT: 30
-      PLANNER_HOST: planner
-      PLANNER_PORT: 8080
-      REDIS_QUEUE_HOST: redis
-      REDIS_STATE_HOST: redis
+      CONAN_CACHE_MOUNT_SOURCE: ~/.conan
+      FAASM_INI_FILE: ./faasm.ini
+      FAASM_VERSION: 0.15.0
       WASM_VM: ${{ matrix.wasm_vm }}
-    container:
-      image: faasm.azurecr.io/examples-run:0.15.0
-      credentials:
-        username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
-        password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
-    services:
-      redis:
-        image: faasm.azurecr.io/redis:0.15.0
-        credentials:
-          username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
-          password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
-      minio:
-        image: faasm.azurecr.io/minio:0.15.0
-        credentials:
-          username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
-          password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
-        env:
-          MINIO_ROOT_USER: minio
-          MINIO_ROOT_PASSWORD: minio123
-      planner:
-        image: faasm.azurecr.io/planner:0.10.0
     steps:
-      - name: "Download examples wasm"
-        uses: actions/download-artifact@v3.0.1
+      - uses: csegarragonz/set-compose-version-action@main
         with:
-          name: examples-wasm
-          path: /usr/local/faasm/wasm
-      - name: "Run codegen for all the examples"
+          compose-version: "2.22.0"
+      # A regular `faasmctl` deployment pulls a lot of docker images, so we
+      # may run out of disk space
+      - name: "Maximize build space"
+        uses: easimon/maximize-build-space@master
+        with:
+          # Leave 25 GB for the / partition for docker images (stored under
+          # /var/lib/docker)
+          root-reserve-mb: 25600
+          remove-android: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Install faasmctl"
+        run: pip3 install $(cat ./requirements.txt | grep faasmctl | tr -d '\n')
+      - name: "Start a Faasm cluster to run the examples"
+        run: faasmctl deploy.compose --workers=2
+      # This can fail when the container isn't ready, so we want to retry
+      - name: "Wait for upload server to be available"
         run: |
-          ./bin/inv_wrapper.sh codegen.user kernels-mpi
-          ./bin/inv_wrapper.sh codegen.user kernels-omp
-          ./bin/inv_wrapper.sh codegen.user polybench
-          ./bin/inv_wrapper.sh codegen imagemagick main
-          ./bin/inv_wrapper.sh codegen lammps main
-          ./bin/inv_wrapper.sh codegen lulesh main
-          ./bin/inv_wrapper.sh codegen ffmpeg check
-          ./bin/inv_wrapper.sh codegen tf check
-      - name: "Put all data files in place"
-        run: ./bin/inv_wrapper.sh data
-        working-directory: /code/examples
+          (echo "Attempt 1" && faasmctl cli.faasm --cmd "./deploy/local/wait_for_upload.sh upload 8002") || \
+          (echo "Attempt 2" && faasmctl cli.faasm --cmd "./deploy/local/wait_for_upload.sh upload 8002") || \
+          (echo "Attempt 3" && faasmctl cli.faasm --cmd "./deploy/local/wait_for_upload.sh upload 8002") || \
+          (echo "Wait for upload failed after retries" && faasmctl logs -s upload && exit 1)
+      - name: "Get CPP/Python commits"
+        id: submodule-commit
+        run: |
+          apt install -y zstd
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "cpp-commit=$(git submodule status ./clients/cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "py-commit=$(git submodule status ./clients/python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+      - name: "Get Cpp WASM cache"
+        uses: actions/cache/restore@v3.3.1
+        id: cpp-wasm-cache
+        with:
+          path: ./wasm
+          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}--${{ steps.submodule-commit.outputs.py-commit }}
+      - name: "Upload all WASM files to the cluster"
+        run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Run MPI kernels"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
-          # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi sparse --cmdline '10 10 5'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi transpose --cmdline '10 1024 32'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi stencil --cmdline '10 1000'
+          # faasmctl invoke kernels-mpi global --cmdline '10 1024'
+          faasmctl invoke kernels-mpi p2p --cmdline '10 1024 1024' --mpi-world-size 4
+          faasmctl invoke kernels-mpi sparse --cmdline '10 10 5' --mpi-world-size 4
+          faasmctl invoke kernels-mpi transpose --cmdline '10 1024 32' --mpi-world-size 4
+          faasmctl invoke kernels-mpi stencil --cmdline '10 1000' --mpi-world-size 4
           # The dgemm MPI kernel does not work because we are missing
           # implementations for MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
-          # ./bin/inv_wrapper.sh run.pool kernels-mpi dgemm --cmdline '10 1024 32 1'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi nstream --cmdline '10 1024 32'
-          ./bin/inv_wrapper.sh run.pool kernels-mpi reduce --cmdline '10 1024'
+          # faasmctl invoke kernels-mpi dgemm --cmdline '10 1024 32 1'
+          faasmctl invoke kernels-mpi nstream --cmdline '10 1024 32'
+          faasmctl invoke kernels-mpi reduce --cmdline '10 1024'
           # The random MPI kernel does not work because we are missing
           # implementations for MPI_Alltoallv
-          # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
+          # faasmctl invoke kernels-mpi random --cmdline '32 20'
       - name: "Run OpenMP kernels"
         if: "contains(env.WASM_VM, 'wavm')"
         run: |
-          ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
-          ./bin/inv_wrapper.sh run.pool kernels-omp p2p --cmdline '2 10 1024 1024'
+          faasmctl invoke kernels-omp global --cmdline '2 10 1024'
+          faasmctl invoke kernels-omp p2p --cmdline '2 10 1024 1024'
           # The sparse OpenMP kernel fails during the result integrity checks
-          # ./bin/inv_wrapper.sh run.pool kernels-omp sparse --cmdline '2 10 10 5'
+          # faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5'
           # The transpose OpenMP kernel can not be cross-compiled due to problems
           # with the static_for signature and symbol definition
-          # ./bin/inv_wrapper.sh run.pool kernels-omp transpose --cmdline '10 1024 32'
+          # faasmctl invoke kernels-omp transpose --cmdline '10 1024 32'
           # The stencil OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
-          # ./bin/inv_wrapper.sh run.pool kernels-omp stencil --cmdline '10 1000'
-          ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '2 2 1024 32'
-          ./bin/inv_wrapper.sh run.pool kernels-omp nstream --cmdline '2 10 1024 32'
-          ./bin/inv_wrapper.sh run.pool kernels-omp reduce --cmdline '2 10 1024'
+          # faasmctl invoke kernels-omp stencil --cmdline '10 1000'
+          faasmctl invoke kernels-omp dgemm --cmdline '2 2 1024 32'
+          faasmctl invoke kernels-omp nstream --cmdline '2 10 1024 32'
+          faasmctl invoke kernels-omp reduce --cmdline '2 10 1024'
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
-          # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
+          # faasmctl invoke kernels-omp random --cmdline '32 20'
       - name: "Run PolyBench/C"
         # We deliberately enumerate all the supported functions here and
         # execute them individually, rather than using the microbench runner.
         # This is so that we can more easily track what functions are supported
         # and what functions are not
         run: |
-          ./bin/inv_wrapper.sh run polybench poly_covariance
-          ./bin/inv_wrapper.sh run polybench poly_correlation
-          ./bin/inv_wrapper.sh run polybench poly_2mm
-          ./bin/inv_wrapper.sh run polybench poly_3mm
-          ./bin/inv_wrapper.sh run polybench poly_atax
-          ./bin/inv_wrapper.sh run polybench poly_bicg
-          ./bin/inv_wrapper.sh run polybench poly_doitgen
-          ./bin/inv_wrapper.sh run polybench poly_mvt
-          ./bin/inv_wrapper.sh run polybench poly_cholesky
-          ./bin/inv_wrapper.sh run polybench poly_durbin
-          ./bin/inv_wrapper.sh run polybench poly_gramschmidt
-          ./bin/inv_wrapper.sh run polybench poly_lu
-          ./bin/inv_wrapper.sh run polybench poly_ludcmp
-          ./bin/inv_wrapper.sh run polybench poly_trisolv
-          ./bin/inv_wrapper.sh run polybench poly_deriche
-          ./bin/inv_wrapper.sh run polybench poly_floyd-warshall
-          ./bin/inv_wrapper.sh run polybench poly_nussinov
-          ./bin/inv_wrapper.sh run polybench poly_adi
-          ./bin/inv_wrapper.sh run polybench poly_fdtd-2d
-          ./bin/inv_wrapper.sh run polybench poly_heat-3d
-          ./bin/inv_wrapper.sh run polybench poly_jacobi-1d
-          ./bin/inv_wrapper.sh run polybench poly_jacobi-2d
-          ./bin/inv_wrapper.sh run polybench poly_seidel-2d
+          faasmctl invoke polybench poly_covariance
+          faasmctl invoke polybench poly_correlation
+          faasmctl invoke polybench poly_2mm
+          faasmctl invoke polybench poly_3mm
+          faasmctl invoke polybench poly_atax
+          faasmctl invoke polybench poly_bicg
+          faasmctl invoke polybench poly_doitgen
+          faasmctl invoke polybench poly_mvt
+          faasmctl invoke polybench poly_cholesky
+          faasmctl invoke polybench poly_durbin
+          faasmctl invoke polybench poly_gramschmidt
+          faasmctl invoke polybench poly_lu
+          faasmctl invoke polybench poly_ludcmp
+          faasmctl invoke polybench poly_trisolv
+          faasmctl invoke polybench poly_deriche
+          faasmctl invoke polybench poly_floyd-warshall
+          faasmctl invoke polybench poly_nussinov
+          faasmctl invoke polybench poly_adi
+          faasmctl invoke polybench poly_fdtd-2d
+          faasmctl invoke polybench poly_heat-3d
+          faasmctl invoke polybench poly_jacobi-1d
+          faasmctl invoke polybench poly_jacobi-2d
+          faasmctl invoke polybench poly_seidel-2d
       - name: "Run ImageMagick"
         if: "contains(env.WASM_VM, 'wavm')"
-        run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+        run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
-        run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
+        run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
       - name: "Run LULESH"
         if: "contains(env.WASM_VM, 'wavm')"
-        run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
+        run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
       - name: "Run TFlite check"
         if: "contains(env.WASM_VM, 'wavm')"
-        run: ./bin/inv_wrapper.sh run tf check
+        run: faasmctl invoke tf check
       - name: "Run FFmpeg check"
-        run: ./bin/inv_wrapper.sh run ffmpeg check
+        run: faasmctl invoke ffmpeg check
+
+          #   run-examples:
+          #     needs: [build-examples]
+          #     if:
+          #       always() &&
+          #       !cancelled() &&
+          #       github.event.pull_request.draft == false &&
+          #       (needs.build-examples.result == 'success' || needs.build-examples.result == 'skipped')
+          #     runs-on: ubuntu-latest
+          #     strategy:
+          #       fail-fast: false
+          #       matrix:
+          #         wasm_vm: [wavm, wamr]
+          #     defaults:
+          #       run:
+          #         working-directory: /usr/local/code/faasm
+          #     env:
+          #       CGROUP_MODE: off
+          #       DEFAULT_MPI_WORLD_SIZE: 4
+          #       HOST_TYPE: ci
+          #       LOG_LEVEL: info
+          #       NETNS_MODE: off
+          #       OVERRIDE_CPU_COUNT: 30
+          #       PLANNER_HOST: planner
+          #       PLANNER_PORT: 8080
+          #       REDIS_QUEUE_HOST: redis
+          #       REDIS_STATE_HOST: redis
+          #       WASM_VM: ${{ matrix.wasm_vm }}
+          #     container:
+          #       image: faasm.azurecr.io/examples-run:0.15.0
+          #       credentials:
+          #         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
+          #         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
+          #     services:
+          #       redis:
+          #         image: faasm.azurecr.io/redis:0.15.0
+          #         credentials:
+          #           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
+          #           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
+          #       minio:
+          #         image: faasm.azurecr.io/minio:0.15.0
+          #         credentials:
+          #           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
+          #           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
+          #         env:
+          #           MINIO_ROOT_USER: minio
+          #           MINIO_ROOT_PASSWORD: minio123
+          #       planner:
+          #         image: faasm.azurecr.io/planner:0.10.0
+          #     steps:
+          #       - name: "Download examples wasm"
+          #         uses: actions/download-artifact@v3.0.1
+          #         with:
+          #           name: examples-wasm
+          #           path: /usr/local/faasm/wasm
+          #       - name: "Run codegen for all the examples"
+          #         run: |
+          #           ./bin/inv_wrapper.sh codegen.user kernels-mpi
+          #           ./bin/inv_wrapper.sh codegen.user kernels-omp
+          #           ./bin/inv_wrapper.sh codegen.user polybench
+          #           ./bin/inv_wrapper.sh codegen imagemagick main
+          #           ./bin/inv_wrapper.sh codegen lammps main
+          #           ./bin/inv_wrapper.sh codegen lulesh main
+          #           ./bin/inv_wrapper.sh codegen ffmpeg check
+          #           ./bin/inv_wrapper.sh codegen tf check
+          #       - name: "Put all data files in place"
+          #         run: ./bin/inv_wrapper.sh data
+          #         working-directory: /code/examples
+          #       - name: "Run MPI kernels"
+          #         run: |
+          #           # The global MPI kernel stopped working when enabling SIMD
+          #           # ./bin/inv_wrapper.sh run.pool kernels-mpi global --cmdline '10 1024'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi p2p --cmdline '10 1024 1024'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi sparse --cmdline '10 10 5'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi transpose --cmdline '10 1024 32'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi stencil --cmdline '10 1000'
+          #           # The dgemm MPI kernel does not work because we are missing
+          #           # implementations for MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
+          #           # ./bin/inv_wrapper.sh run.pool kernels-mpi dgemm --cmdline '10 1024 32 1'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi nstream --cmdline '10 1024 32'
+          #           ./bin/inv_wrapper.sh run.pool kernels-mpi reduce --cmdline '10 1024'
+          #           # The random MPI kernel does not work because we are missing
+          #           # implementations for MPI_Alltoallv
+          #           # ./bin/inv_wrapper.sh run.pool kernels-mpi random --cmdline '32 20'
+          #       - name: "Run OpenMP kernels"
+          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         run: |
+          #           ./bin/inv_wrapper.sh run.pool kernels-omp global --cmdline '2 10 1024'
+          #           ./bin/inv_wrapper.sh run.pool kernels-omp p2p --cmdline '2 10 1024 1024'
+          #           # The sparse OpenMP kernel fails during the result integrity checks
+          #           # ./bin/inv_wrapper.sh run.pool kernels-omp sparse --cmdline '2 10 10 5'
+          #           # The transpose OpenMP kernel can not be cross-compiled due to problems
+          #           # with the static_for signature and symbol definition
+          #           # ./bin/inv_wrapper.sh run.pool kernels-omp transpose --cmdline '10 1024 32'
+          #           # The stencil OpenMP kernel can not be cross-compiled due to a problem
+          #           # with the faasm_sm_reduce signature
+          #           # ./bin/inv_wrapper.sh run.pool kernels-omp stencil --cmdline '10 1000'
+          #           ./bin/inv_wrapper.sh run.pool kernels-omp dgemm --cmdline '2 2 1024 32'
+          #           ./bin/inv_wrapper.sh run.pool kernels-omp nstream --cmdline '2 10 1024 32'
+          #           ./bin/inv_wrapper.sh run.pool kernels-omp reduce --cmdline '2 10 1024'
+          #           # The random OpenMP kernel can not be cross-compiled due to a problem
+          #           # with the faasm_sm_reduce signature
+          #           # ./bin/inv_wrapper.sh run.pool kernels-omp random --cmdline '32 20'
+          #       - name: "Run PolyBench/C"
+          #         # We deliberately enumerate all the supported functions here and
+          #         # execute them individually, rather than using the microbench runner.
+          #         # This is so that we can more easily track what functions are supported
+          #         # and what functions are not
+          #         run: |
+          #           ./bin/inv_wrapper.sh run polybench poly_covariance
+          #           ./bin/inv_wrapper.sh run polybench poly_correlation
+          #           ./bin/inv_wrapper.sh run polybench poly_2mm
+          #           ./bin/inv_wrapper.sh run polybench poly_3mm
+          #           ./bin/inv_wrapper.sh run polybench poly_atax
+          #           ./bin/inv_wrapper.sh run polybench poly_bicg
+          #           ./bin/inv_wrapper.sh run polybench poly_doitgen
+          #           ./bin/inv_wrapper.sh run polybench poly_mvt
+          #           ./bin/inv_wrapper.sh run polybench poly_cholesky
+          #           ./bin/inv_wrapper.sh run polybench poly_durbin
+          #           ./bin/inv_wrapper.sh run polybench poly_gramschmidt
+          #           ./bin/inv_wrapper.sh run polybench poly_lu
+          #           ./bin/inv_wrapper.sh run polybench poly_ludcmp
+          #           ./bin/inv_wrapper.sh run polybench poly_trisolv
+          #           ./bin/inv_wrapper.sh run polybench poly_deriche
+          #           ./bin/inv_wrapper.sh run polybench poly_floyd-warshall
+          #           ./bin/inv_wrapper.sh run polybench poly_nussinov
+          #           ./bin/inv_wrapper.sh run polybench poly_adi
+          #           ./bin/inv_wrapper.sh run polybench poly_fdtd-2d
+          #           ./bin/inv_wrapper.sh run polybench poly_heat-3d
+          #           ./bin/inv_wrapper.sh run polybench poly_jacobi-1d
+          #           ./bin/inv_wrapper.sh run polybench poly_jacobi-2d
+          #           ./bin/inv_wrapper.sh run polybench poly_seidel-2d
+          #       - name: "Run ImageMagick"
+          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         run: ./bin/inv_wrapper.sh run imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+          #       - name: "Run LAMMPS"
+          #         run: ./bin/inv_wrapper.sh run.pool lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
+          #       - name: "Run LULESH"
+          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         run: ./bin/inv_wrapper.sh run.pool lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
+          #       - name: "Run TFlite check"
+          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         run: ./bin/inv_wrapper.sh run tf check
+          #       - name: "Run FFmpeg check"
+          #         run: ./bin/inv_wrapper.sh run ffmpeg check

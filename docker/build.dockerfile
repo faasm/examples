@@ -40,8 +40,9 @@ RUN apt update \
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
-RUN mkdir -p code \
-    && git clone -b v${EXAMPLES_VERSION} \
+RUN mkdir -p jeje && mkdir -p code \
+    # && git clone -b v${EXAMPLES_VERSION} \
+    && git clone -b bump-deps \
         https://github.com/faasm/examples \
         /code/examples \
     && cd /code/examples \
