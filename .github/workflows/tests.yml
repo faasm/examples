@@ -101,8 +101,10 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+      # If we are here we _always_ want to overwrite the cache
       - name: "Prepare WASM cache"
-        uses: actions/cache@v3.3.1
+        uses: actions/cache/save@v3.3.1
+        if: always()
         with:
           path: /usr/local/faasm/wasm
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
