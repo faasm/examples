@@ -26,13 +26,7 @@ EXAMPLES_DATA_FILES = [
         join(EXAMPLES_DATA_BASE_DIR, "im", "sample_image.png"),
     ],
     [
-        join(
-            EXAMPLES_DIR,
-            "lammps",
-            "examples",
-            "controller",
-            "in.controller.wall",
-        ),
+        join(EXAMPLES_DATA_HOST_DIR, "in.controller.wall"),
         join(EXAMPLES_DATA_BASE_DIR, "lammps-data", "in.controller.wall"),
     ],
     [
