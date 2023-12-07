@@ -9,7 +9,6 @@ from tasks.env import (
     EXAMPLES_DATA_FILES,
     EXAMPLES_DATA_BASE_DIR,
     WASM_DIR,
-    PROJ_ROOT,
 )
 
 
