@@ -3,12 +3,14 @@ from subprocess import run
 from tasks.env import (
     EXAMPLES_BUILD_IMAGE_NAME,
     PROJ_ROOT,
+    get_faabric_version,
     get_faasm_version,
     get_version,
 )
 
 VERSIONED_FILES = {
     "faasm": ["FAASM_VERSION", ".github/workflows/tests.yml"],
+    "faabric": ["docker-compose.yml", ".github/workflows/tests.yml"],
     "cpp": [".github/workflows/tests.yml"],
     "python": [".github/workflows/tests.yml"],
 }
@@ -52,16 +54,19 @@ def bump(ctx, submodule, ver=None):
         if ver:
             new_ver = ver
         else:
-            # Just bump the last minor version part
-            new_ver_parts = old_ver.split(".")
-            new_ver_minor = int(new_ver_parts[-1]) + 1
-            new_ver_parts[-1] = str(new_ver_minor)
-            new_ver = ".".join(new_ver_parts)
+            raise RuntimeError("Must provide a version with --ver flag!")
 
         # Replace version in all files
         for f in VERSIONED_FILES["faasm"]:
             sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
             run(sed_cmd, shell=True, check=True)
+
+        # Also update the planner version accordingly
+        old_fabric_ver, new_faabric_ver = get_faabric_version(old_ver, new_ver)
+        for f in VERSIONED_FILES["faabric"]:
+            sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
+            run(sed_cmd, shell=True, check=True)
+
     else:
         new_ver = get_version("build")
         grep_cmd = "grep '{}' .github/workflows/tests.yml".format(

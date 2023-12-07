@@ -1,6 +1,9 @@
+from faasmtools.build import FAASM_LOCAL_DIR
 from faasmtools.docker import ACR_NAME
 from faasmtools.env import get_version as get_cpp_version
 from os.path import dirname, abspath, join
+from re import search as re_search
+from subprocess import run
 
 PROJ_ROOT = dirname(dirname(abspath(__file__)))
 DOCKER_ROOT = join(PROJ_ROOT, "docker")
@@ -13,6 +16,32 @@ EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
 EXAMPLES_RUN_IMAGE_NAME = "{}/examples-run".format(ACR_NAME)
 EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
+
+# Shared files data
+EXAMPLES_DATA_BASE_DIR = join(FAASM_LOCAL_DIR, "shared")
+EXAMPLES_DATA_HOST_DIR = join(PROJ_ROOT, "data")
+EXAMPLES_DATA_FILES = [
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "faasm_logo.png"),
+        join(EXAMPLES_DATA_BASE_DIR, "im", "sample_image.png"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "in.controller.wall"),
+        join(EXAMPLES_DATA_BASE_DIR, "lammps-data", "in.controller.wall"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "ffmpeg_video.mp4"),
+        join(EXAMPLES_DATA_BASE_DIR, "ffmpeg", "sample_video.mp4"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "sample_model.tflite"),
+        join(EXAMPLES_DATA_BASE_DIR, "tflite", "sample_model.tflite"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "grace_hopper.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "tflite", "grace_hopper.bmp"),
+    ],
+]
 
 
 def get_submodule_version(submodule):
@@ -46,6 +75,33 @@ def get_faasm_version():
 
     version = version.strip()
     return version
+
+
+def get_faabric_version(old_faasm_ver, new_faasm_ver):
+    """
+    Get the faabric version by `wget`-ing the FAASM version file for the tagged
+    Faasm version
+    """
+
+    def do_get_ver(faasm_ver):
+        tmp_file = "/tmp/faabric_version"
+        wget_cmd = [
+            "wget",
+            "-O {}".format(tmp_file),
+            "https://raw.githubusercontent.com/faasm/faasm/v{}/.env".format(
+                faasm_ver
+            ),
+        ]
+        wget_cmd = " ".join(wget_cmd)
+        out = run(wget_cmd, shell=True, capture_output=True)
+        assert out.returncode == 0
+
+        with open(tmp_file, "r") as fh:
+            ver = re_search(r"planner:([0-9\.]*)", fh.read()).groups(1)[0]
+
+        return ver
+
+    return do_get_ver(old_faasm_ver), do_get_ver(new_faasm_ver)
 
 
 def get_version(name="build"):

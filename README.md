@@ -84,7 +84,7 @@ inv docker.build -c build -c run --nocache --push
 ## Adding a new application
 
 To add a new application, you first need to cross-compile it to WebAssembly.
-You can check the [`tasks/`]](./tasks) folder for examples of how we do it for
+You can check the [`tasks/`](./tasks) folder for examples of how we do it for
 existing applications. Most importantly, you will have to inidicate the right
 sysroot, and pass the environment variables that we read from `faasmtools`.
 

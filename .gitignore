@@ -10,3 +10,6 @@ build
 
 # WASM files
 wasm
+
+# Faasm deployment config
+faasm.ini
