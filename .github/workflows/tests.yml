@@ -101,12 +101,14 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          # Also move to a different path to restore from
+          mv /usr/local/faasm/wasm ./wasm
       # If we are here we _always_ want to overwrite the cache
       - name: "Prepare WASM cache"
         uses: actions/cache/save@v3.3.1
         if: always()
         with:
-          path: /usr/local/faasm/wasm
+          path: ./wasm
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
 
   run-examples-faasmctl:
@@ -168,12 +170,13 @@ jobs:
           git submodule update --init ./python
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-      - name: "Get Cpp WASM cache"
+      - name: "Get WASM cache"
         uses: actions/cache/restore@v3.3.1
         id: cpp-wasm-cache
         with:
           path: ./wasm
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          fail-on-cache-miss: true
       - name: "Upload all WASM files to the cluster"
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Run MPI kernels"
