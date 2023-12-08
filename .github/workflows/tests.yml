@@ -247,7 +247,7 @@ jobs:
         if: "contains(env.WASM_VM, 'wavm')"
         run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
-        run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall'
+        run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4
       - name: "Run LULESH"
         if: "contains(env.WASM_VM, 'wavm')"
         run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --data '4'
