@@ -256,10 +256,11 @@ jobs:
       - name: "Run LAMMPS"
         timeout-minutes: 1
         run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4
-      - name: "Run LULESH"
-        timeout-minutes: 1
-        if: "contains(env.WASM_VM, 'wavm')"
-        run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
+          # 08/12/2023 - LULESH is broken with a memory leak
+          #       - name: "Run LULESH"
+          #         timeout-minutes: 1
+          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
       - name: "Run TFlite check"
         timeout-minutes: 1
         if: "contains(env.WASM_VM, 'wavm')"
