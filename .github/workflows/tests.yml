@@ -180,6 +180,9 @@ jobs:
       - name: "Upload all WASM files to the cluster"
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Run MPI kernels"
+        # TODO: MPI kernels still not run in WAMR because there's a seg. fault
+        # with the `exit` syscall
+        if: "contains(env.WASM_VM, 'wavm')"
         run: |
           # The global MPI kernel stopped working when enabling SIMD
           # faasmctl invoke kernels-mpi global --cmdline '10 1024'
