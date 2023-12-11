@@ -1,17 +1,20 @@
 from faasmtools.build import FAASM_LOCAL_DIR
 from faasmtools.docker import ACR_NAME
 from faasmtools.env import get_version as get_cpp_version
+from os import environ
 from os.path import dirname, abspath, join
 from re import search as re_search
 from subprocess import run
 
 PROJ_ROOT = dirname(dirname(abspath(__file__)))
+EXAMPLES_IN_DOCKER_ROOT = "/code/examples"
 DOCKER_ROOT = join(PROJ_ROOT, "docker")
 EXAMPLES_DIR = join(PROJ_ROOT, "examples")
 DEV_FAASM_LOCAL = join(PROJ_ROOT, "dev", "faasm-local")
 WASM_DIR = join(PROJ_ROOT, "wasm")
 
 # Docker variables
+EXAMPLES_BUILD_IMAGE_CTR = "examples-build-workon"
 EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
 EXAMPLES_RUN_IMAGE_NAME = "{}/examples-run".format(ACR_NAME)
@@ -115,3 +118,7 @@ def get_version(name="build"):
         return "{}_{}".format(get_cpp_version(), get_python_version())
     if name == "run":
         return "{}".format(get_faasm_version())
+
+
+def in_docker():
+    return "IN_DOCKER" in environ

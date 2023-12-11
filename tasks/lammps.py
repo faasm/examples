@@ -1,7 +1,8 @@
 from faasmtools.build import CMAKE_TOOLCHAIN_FILE, FAASM_BUILD_ENV_DICT
 from faasmtools.compile_util import wasm_copy_upload
 from faasmtools.env import LLVM_VERSION
-from tasks.env import EXAMPLES_DIR
+from tasks.env import DEV_FAASM_LOCAL, EXAMPLES_DIR, in_docker
+from tasks.util import run_docker_build_cmd
 from invoke import task
 from os import environ, makedirs
 from os.path import exists, join
@@ -51,16 +52,49 @@ def build(ctx, clean=False, native=False, migration=False):
             "-DLAMMPS_FAASM=ON",
             "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE),
         ]
-    cmake_cmd += [cmake_dir]
-    cmake_cmd = " ".join(cmake_cmd)
+    if in_docker():
+        cmake_cmd += [cmake_dir]
+        cmake_cmd = " ".join(cmake_cmd)
 
-    work_env = environ.copy()
-    work_env.update(FAASM_BUILD_ENV_DICT)
+        work_env = environ.copy()
+        work_env.update(FAASM_BUILD_ENV_DICT)
 
-    run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
-    run("ninja", shell=True, check=True, cwd=build_dir)
+        run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
+        run("ninja", shell=True, check=True, cwd=build_dir)
+
+    else:
+        in_docker_cmake_dir = cmake_dir
+        in_docker_cmake_dir = cmake_dir.removeprefix(EXAMPLES_DIR)
+        in_docker_cmake_dir = "/code/examples/examples" + in_docker_cmake_dir
+        in_docker_build_dir = build_dir
+        in_docker_build_dir = build_dir.removeprefix(EXAMPLES_DIR)
+        in_docker_build_dir = "/code/examples/examples" + in_docker_build_dir
+
+        cmake_cmd += [in_docker_cmake_dir]
+        cmake_cmd = " ".join(cmake_cmd)
+
+        run_docker_build_cmd(
+            [cmake_cmd, "ninja"],
+            cwd=in_docker_build_dir,
+            env=FAASM_BUILD_ENV_DICT,
+        )
 
     if not native:
         # Copy the binary to lammps/main/function.wasm
         lammps_func_name = "migration" if migration else "main"
-        wasm_copy_upload("lammps", lammps_func_name, join(build_dir, "lmp"))
+        lammps_func = join(build_dir, "lmp")
+
+        if in_docker():
+            wasm_copy_upload("lammps", lammps_func_name, lammps_func)
+        else:
+            dest_folder = join(
+                DEV_FAASM_LOCAL, "wasm", "lammps", lammps_func_name
+            )
+
+            makedirs(dest_folder, exist_ok=True)
+            dest_file = join(dest_folder, "function.wasm")
+            run(
+                "sudo cp {} {}".format(lammps_func, dest_file),
+                shell=True,
+                check=True,
+            )
