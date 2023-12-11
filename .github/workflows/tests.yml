@@ -86,6 +86,8 @@ jobs:
         run: ./bin/inv_wrapper.sh kernels kernels --native
       - name: "Build LAMMPS"
         run: ./bin/inv_wrapper.sh lammps lammps --native
+      - name: "Build LAMMPS with migration"
+        run: ./bin/inv_wrapper.sh lammps --migration lammps --native --migration
       - name: "Build Lulesh"
         run: ./bin/inv_wrapper.sh lulesh lulesh --native
       - name: "Build TensorFlow"
@@ -256,6 +258,10 @@ jobs:
       - name: "Run LAMMPS"
         timeout-minutes: 1
         run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4
+      # Note that the migration experiment does not migrate, it just checks the binary
+      - name: "Run LAMMPS migration binary"
+        timeout-minutes: 1
+        run: faasmctl invoke lammps migration --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2'
           # 08/12/2023 - LULESH is broken with a memory leak
           #       - name: "Run LULESH"
           #         timeout-minutes: 1
