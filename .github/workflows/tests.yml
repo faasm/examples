@@ -124,7 +124,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        wasm_vm: [wavm, wamr]
+        faasm_wasm_vm: [wavm, wamr]
     defaults:
       run:
         shell: bash
@@ -132,7 +132,7 @@ jobs:
       CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
       FAASM_VERSION: 0.15.0
-      WASM_VM: ${{ matrix.wasm_vm }}
+      FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
         with:
@@ -184,7 +184,7 @@ jobs:
       - name: "Run MPI kernels"
         # TODO: MPI kernels still not run in WAMR because there's a seg. fault
         # with the `exit` syscall
-        if: "contains(env.WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wavm')"
         timeout-minutes: 2
         run: |
           # The global MPI kernel stopped working when enabling SIMD
@@ -202,7 +202,7 @@ jobs:
           # implementations for MPI_Alltoallv
           # faasmctl invoke kernels-mpi random --cmdline '32 20' --mpi-world-size 4
       - name: "Run OpenMP kernels"
-        if: "contains(env.WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wavm')"
         timeout-minutes: 2
         run: |
           faasmctl invoke kernels-omp global --cmdline '2 10 1024'
@@ -252,7 +252,7 @@ jobs:
           faasmctl invoke polybench poly_jacobi-2d
           faasmctl invoke polybench poly_seidel-2d
       - name: "Run ImageMagick"
-        if: "contains(env.WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wavm')"
         timeout-minutes: 1
         run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
@@ -265,11 +265,11 @@ jobs:
           # 08/12/2023 - LULESH is broken with a memory leak
           #       - name: "Run LULESH"
           #         timeout-minutes: 1
-          #         if: "contains(env.WASM_VM, 'wavm')"
+          #         if: "contains(env.FAASM_WASM_VM, 'wavm')"
           #         run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
       - name: "Run TFlite check"
         timeout-minutes: 1
-        if: "contains(env.WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wavm')"
         run: faasmctl invoke tf check
       - name: "Run FFmpeg check"
         timeout-minutes: 1

@@ -40,7 +40,7 @@ services:
       - LD_LIBRARY_PATH=/build/faasm/third-party/lib:/usr/local/lib
       - REDIS_QUEUE_HOST=redis
       - REDIS_STATE_HOST=redis
-      - WASM_VM=${WASM_VM:-wavm}
+      - FAASM_WASM_VM=${FAASM_WASM_VM:-wavm}
 
   build:
     image: faasm.azurecr.io/examples-build:${EXAMPLES_BUILD_VERSION}
