@@ -266,7 +266,7 @@ jobs:
         run: faasmctl invoke lammps migration --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2'
       - name: "Run LAMMPS migration-net binary"
         timeout-minutes: 1
-        run: faasmctl invoke lammps migration-net --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2'
+        run: faasmctl invoke lammps migration-net --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2 10 2'
           # 08/12/2023 - LULESH is broken with a memory leak
           #       - name: "Run LULESH"
           #         timeout-minutes: 1
