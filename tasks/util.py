@@ -43,9 +43,11 @@ def run_docker_build_cmd(cmd_list, cwd=None, env=None):
         docker_cmd = [
             "docker exec",
             "--workdir {}".format(cwd) if cwd is not None else "",
-            " ".join(['--env {}="{}"'.format(k, env[k]) for k in env])
-            if env is not None
-            else "",
+            (
+                " ".join(['--env {}="{}"'.format(k, env[k]) for k in env])
+                if env is not None
+                else ""
+            ),
             EXAMPLES_BUILD_IMAGE_CTR,
             cmd,
         ]
