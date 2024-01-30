@@ -11,7 +11,9 @@ from subprocess import run
 
 
 @task(default=True)
-def build(ctx, clean=False, native=False, migration=False):
+def build(
+    ctx, clean=False, native=False, migration=False, migration_net=False
+):
     """
     Build the LAMMPS molecule dynamics simulator.
 
@@ -21,6 +23,8 @@ def build(ctx, clean=False, native=False, migration=False):
     """
     if migration:
         lammps_dir = join(EXAMPLES_DIR, "lammps-migration")
+    if migration_net:
+        lammps_dir = join(EXAMPLES_DIR, "lammps-migration-net")
     else:
         lammps_dir = join(EXAMPLES_DIR, "lammps")
     cmake_dir = join(lammps_dir, "cmake")
@@ -80,8 +84,13 @@ def build(ctx, clean=False, native=False, migration=False):
         )
 
     if not native:
-        # Copy the binary to lammps/main/function.wasm
-        lammps_func_name = "migration" if migration else "main"
+        # Copy the binary to lammps/main/function.wasm`
+        if migration:
+            lammps_func_name = "migration"
+        elif migration_net:
+            lammps_func_name = "migration-net"
+        else:
+            lammps_func_name = "main"
         lammps_func = join(build_dir, "lmp")
 
         if in_docker():

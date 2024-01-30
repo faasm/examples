@@ -39,3 +39,7 @@
 [submodule "examples/polybench"]
 	path = examples/polybench
 	url = https://github.com/faasm/polybench.git
+[submodule "examples/lammps-migration-net"]
+	path = examples/lammps-migration-net
+	url = https://github.com/faasm/lammps.git
+	branch = faasm-migration-net

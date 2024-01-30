@@ -46,7 +46,7 @@ def cli(ctx, service, clean=False):
             "EXAMPLES_BUILD_VERSION": get_version(),
         }
     )
-    docker_cmd = "docker compose up -d --no-recreate"
+    docker_cmd = "docker compose up -d --no-recreate {}".format(service)
     run(docker_cmd, shell=True, check=True, cwd=PROJ_ROOT, env=build_env)
 
     docker_cmd = "docker compose exec -it {} bash".format(service)
