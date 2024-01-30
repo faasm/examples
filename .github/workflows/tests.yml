@@ -88,6 +88,8 @@ jobs:
         run: ./bin/inv_wrapper.sh lammps lammps --native
       - name: "Build LAMMPS with migration"
         run: ./bin/inv_wrapper.sh lammps --migration lammps --native --migration
+      - name: "Build LAMMPS with migration and network phase"
+        run: ./bin/inv_wrapper.sh lammps --migration-net lammps --native --migration-net
       - name: "Build Lulesh"
         run: ./bin/inv_wrapper.sh lulesh lulesh --native
       - name: "Build TensorFlow"
@@ -131,7 +133,7 @@ jobs:
     env:
       CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.17.0
+      FAASM_VERSION: 0.20.1
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -262,6 +264,9 @@ jobs:
       - name: "Run LAMMPS migration binary"
         timeout-minutes: 1
         run: faasmctl invoke lammps migration --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2'
+      - name: "Run LAMMPS migration-net binary"
+        timeout-minutes: 1
+        run: faasmctl invoke lammps migration-net --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2'
           # 08/12/2023 - LULESH is broken with a memory leak
           #       - name: "Run LULESH"
           #         timeout-minutes: 1
