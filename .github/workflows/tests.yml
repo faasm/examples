@@ -41,7 +41,7 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v4
       # Check if any of the submodules have been modified
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -57,7 +57,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-      - uses: actions/cache/restore@v3.3.1
+      - uses: actions/cache/restore@v4
         id: wasm-cache
         with:
           path: ./wasm
@@ -109,7 +109,7 @@ jobs:
           mv /usr/local/faasm/wasm ./wasm
       # If we are here we _always_ want to overwrite the cache
       - name: "Prepare WASM cache"
-        uses: actions/cache/save@v3.3.1
+        uses: actions/cache/save@v4
         if: always()
         with:
           path: ./wasm
@@ -133,7 +133,7 @@ jobs:
     env:
       CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.20.1
+      FAASM_VERSION: 0.21.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -175,7 +175,7 @@ jobs:
           echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
           echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
       - name: "Get WASM cache"
-        uses: actions/cache/restore@v3.3.1
+        uses: actions/cache/restore@v4
         id: cpp-wasm-cache
         with:
           path: ./wasm
@@ -184,9 +184,6 @@ jobs:
       - name: "Upload all WASM files to the cluster"
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Run MPI kernels"
-        # TODO: MPI kernels still not run in WAMR because there's a seg. fault
-        # with the `exit` syscall
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
         timeout-minutes: 2
         run: |
           # The global MPI kernel stopped working when enabling SIMD
