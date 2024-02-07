@@ -7,15 +7,12 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
 
-jobs:
-  # Cancel previous running actions for the same PR
-  cancel_previous:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Workflow Action
-        uses: styfle/cancel-workflow-action@0.11.0
+# Cancel previous running actions for the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+jobs:
   checks:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
