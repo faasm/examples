@@ -3,8 +3,7 @@ from faasmtools.docker import ACR_NAME
 from faasmtools.env import get_version as get_cpp_version
 from os import environ
 from os.path import dirname, abspath, join
-from re import search as re_search
-from subprocess import run
+from yaml import safe_load
 
 PROJ_ROOT = dirname(dirname(abspath(__file__)))
 EXAMPLES_IN_DOCKER_ROOT = "/code/examples"
@@ -69,55 +68,22 @@ def get_python_version():
 
 def get_faasm_version():
     """
-    Get the version of the python submodule
+    Get the version of the Faasm dependency
     """
-    ver_file = join(PROJ_ROOT, "FAASM_VERSION")
-
-    with open(ver_file, "r") as fh:
-        version = fh.read()
-
-    version = version.strip()
-    return version
+    yaml_path = join(PROJ_ROOT, ".github", "workflows", "tests.yml")
+    return safe_load(open(yaml_path, "r"))["jobs"]["run-examples-faasmctl"][
+        "env"
+    ]["FAASM_VERSION"]
 
 
-def get_faabric_version(old_faasm_ver, new_faasm_ver):
-    """
-    Get the faabric version by `wget`-ing the FAASM version file for the tagged
-    Faasm version
-    """
-
-    def do_get_ver(faasm_ver):
-        tmp_file = "/tmp/faabric_version"
-        wget_cmd = [
-            "wget",
-            "-O {}".format(tmp_file),
-            "https://raw.githubusercontent.com/faasm/faasm/v{}/.env".format(
-                faasm_ver
-            ),
-        ]
-        wget_cmd = " ".join(wget_cmd)
-        out = run(wget_cmd, shell=True, capture_output=True)
-        assert out.returncode == 0
-
-        with open(tmp_file, "r") as fh:
-            ver = re_search(r"planner:([0-9\.]*)", fh.read()).groups(1)[0]
-
-        return ver
-
-    return do_get_ver(old_faasm_ver), do_get_ver(new_faasm_ver)
-
-
-def get_version(name="build"):
+def get_version():
     """
     Get version for the examples repository
 
     The version depends only on the version of the different cross-compilation
-    toolchains we use, in this case CPP and Python, and Faasm
+    toolchains we use, in this case CPP and Python
     """
-    if name == "build":
-        return "{}_{}".format(get_cpp_version(), get_python_version())
-    if name == "run":
-        return "{}".format(get_faasm_version())
+    return "{}_{}".format(get_cpp_version(), get_python_version())
 
 
 def in_docker():

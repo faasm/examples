@@ -1,47 +1,6 @@
 version: "3"
 
 services:
-  redis:
-    image: faasm.azurecr.io/redis:${EXAMPLES_RUN_VERSION}
-
-  planner:
-    image: faasm.azurecr.io/planner:0.11.0
-    environment:
-      - LOG_LEVEL=info
-      - PLANNER_PORT=8081
-
-  minio:
-    image: faasm.azurecr.io/minio:${EXAMPLES_RUN_VERSION}
-    environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
-    volumes:
-      - ./dev/minio/data:/data/minio
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-
-  run:
-    depends_on:
-      - redis
-      - minio
-    image: faasm.azurecr.io/examples-run:${EXAMPLES_RUN_VERSION}
-    working_dir: /usr/local/code/faasm
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./:/code/examples
-      - ./dev/faasm-local/:/usr/local/faasm
-    environment:
-      - DEFAULT_MPI_WORLD_SIZE=4
-      - LOG_LEVEL=info
-      - LD_LIBRARY_PATH=/build/faasm/third-party/lib:/usr/local/lib
-      - REDIS_QUEUE_HOST=redis
-      - REDIS_STATE_HOST=redis
-      - FAASM_WASM_VM=${FAASM_WASM_VM:-wavm}
-
   build:
     image: faasm.azurecr.io/examples-build:${EXAMPLES_BUILD_VERSION}
     working_dir: /code/examples

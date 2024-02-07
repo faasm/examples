@@ -8,7 +8,6 @@ from tasks.env import (
     DEV_FAASM_LOCAL,
     EXAMPLES_BUILD_IMAGE_NAME,
     PROJ_ROOT,
-    get_faasm_version,
     get_version,
 )
 
@@ -40,12 +39,7 @@ def cli(ctx, service, clean=False):
         run("docker rm -f {}".format(tmp_ctr_name), shell=True, check=True)
 
     build_env = environ.copy()
-    build_env.update(
-        {
-            "EXAMPLES_RUN_VERSION": get_faasm_version(),
-            "EXAMPLES_BUILD_VERSION": get_version(),
-        }
-    )
+    build_env.update({"EXAMPLES_BUILD_VERSION": get_version()})
     docker_cmd = "docker compose up -d --no-recreate {}".format(service)
     run(docker_cmd, shell=True, check=True, cwd=PROJ_ROOT, env=build_env)
 
@@ -56,12 +50,7 @@ def cli(ctx, service, clean=False):
 @task()
 def stop(ctx):
     build_env = environ.copy()
-    build_env.update(
-        {
-            "EXAMPLES_RUN_VERSION": get_faasm_version(),
-            "EXAMPLES_BUILD_VERSION": get_version(),
-        }
-    )
+    build_env.update({"EXAMPLES_BUILD_VERSION": get_version()})
     run(
         "docker compose down",
         shell=True,

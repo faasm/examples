@@ -3,16 +3,15 @@ from subprocess import run
 from tasks.env import (
     EXAMPLES_BUILD_IMAGE_NAME,
     PROJ_ROOT,
-    get_faabric_version,
     get_faasm_version,
     get_version,
 )
 
 VERSIONED_FILES = {
-    "faasm": ["FAASM_VERSION", ".github/workflows/tests.yml"],
-    "faabric": ["docker-compose.yml", ".github/workflows/tests.yml"],
+    "faasm": [".github/workflows/tests.yml"],
     "cpp": [".github/workflows/tests.yml"],
     "python": [".github/workflows/tests.yml"],
+    "faasmctl": ["requirements.txt"],
 }
 
 
@@ -41,9 +40,9 @@ def tag(ctx, force=False):
 @task
 def bump(ctx, submodule, ver=None):
     """
-    Bump a submodule's dependency: `faasm`, `cpp`, or `python`
+    Bump a submodule's dependency: `faasm`, `cpp`, `python`, or `faasmctl`
     """
-    allowed_submodules = ["faasm", "cpp", "python"]
+    allowed_submodules = ["faasm", "cpp", "python", "faasmctl"]
     if submodule not in allowed_submodules:
         print("Unrecognised submodule: {}".format(allowed_submodules))
         print("Submodule must be one in: {}".format(allowed_submodules))
@@ -58,12 +57,6 @@ def bump(ctx, submodule, ver=None):
 
         # Replace version in all files
         for f in VERSIONED_FILES["faasm"]:
-            sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
-            run(sed_cmd, shell=True, check=True)
-
-        # Also update the planner version accordingly
-        old_fabric_ver, new_faabric_ver = get_faabric_version(old_ver, new_ver)
-        for f in VERSIONED_FILES["faabric"]:
             sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
             run(sed_cmd, shell=True, check=True)
 
@@ -83,3 +76,8 @@ def bump(ctx, submodule, ver=None):
         for f in VERSIONED_FILES[submodule]:
             sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
             run(sed_cmd, shell=True, check=True)
+
+
+@task
+def foo(ctx):
+    print(get_faasm_version())
