@@ -183,20 +183,25 @@ jobs:
       - name: "Run MPI kernels"
         timeout-minutes: 2
         run: |
-          # The global MPI kernel stopped working when enabling SIMD
-          # faasmctl invoke kernels-mpi global --cmdline '10 1024'
-          faasmctl invoke kernels-mpi p2p --cmdline '10 1024 1024' --mpi-world-size 4
-          faasmctl invoke kernels-mpi sparse --cmdline '10 10 5' --mpi-world-size 4
-          faasmctl invoke kernels-mpi transpose --cmdline '10 1024 32' --mpi-world-size 4
-          faasmctl invoke kernels-mpi stencil --cmdline '10 1000' --mpi-world-size 4
-          # The dgemm MPI kernel does not work because we are missing
-          # implementations for MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
+          # We order MPI kernels according to their compilation order defined
+          # in tasks/kernels.py
+          # amr: does not work because we are missing MPI_Comm_split
+          # faasmctl invoke kernels-mpi amr --cmdline '10 1024 16 16 16 8 4 HIGH_WATER' --mpi-world-size 4
+          faasmctl invoke kernels-mpi branch --cmdline '10 10 vector_go' --mpi-world-size 4
+          # dgemm: does not work because we are missing MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
           # faasmctl invoke kernels-mpi dgemm --cmdline '10 1024 32 1' --mpi-world-size 4
           faasmctl invoke kernels-mpi nstream --cmdline '10 1024 32' --mpi-world-size 4
-          faasmctl invoke kernels-mpi reduce --cmdline '10 1024' --mpi-world-size 4
-          # The random MPI kernel does not work because we are missing
-          # implementations for MPI_Alltoallv
+          # pic: does not work due to what looks like an integer overflow
+          # faasmctl invoke kernels-mpi pic --cmdline "10 10 10 2 5 SINUSOIDAL" --mpi-world-size 4
+          # random: does not work due to some memory size error (likely an overflow too)
           # faasmctl invoke kernels-mpi random --cmdline '32 20' --mpi-world-size 4
+          faasmctl invoke kernels-mpi reduce --cmdline '10 1024' --mpi-world-size 4
+          faasmctl invoke kernels-mpi sparse --cmdline '10 10 5' --mpi-world-size 4
+          faasmctl invoke kernels-mpi stencil --cmdline '10 1000' --mpi-world-size 4
+          # global: fails sometime during execution
+          # faasmctl invoke kernels-mpi global --cmdline '10 1024'
+          faasmctl invoke kernels-mpi p2p --cmdline '10 1024 1024' --mpi-world-size 4
+          faasmctl invoke kernels-mpi transpose --cmdline '10 1024 32' --mpi-world-size 4
       - name: "Run OpenMP kernels"
         if: "contains(env.FAASM_WASM_VM, 'wavm')"
         timeout-minutes: 2
