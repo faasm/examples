@@ -1,3 +1,4 @@
+from faasmctl.util.version import get_version as get_faasmctl_version
 from invoke import task
 from subprocess import run
 from tasks.env import (
@@ -59,9 +60,19 @@ def bump(ctx, submodule, ver=None):
         for f in VERSIONED_FILES["faasm"]:
             sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
             run(sed_cmd, shell=True, check=True)
+    elif submodule == "faasmctl":
+        old_ver = get_faasmctl_version()
+        if ver:
+            new_ver = ver
+        else:
+            raise RuntimeError("Must provide a version with --ver flag!")
 
+        # Replace version in all files
+        for f in VERSIONED_FILES["faasmctl"]:
+            sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
+            run(sed_cmd, shell=True, check=True)
     else:
-        new_ver = get_version("build")
+        new_ver = get_version()
         grep_cmd = "grep '{}' .github/workflows/tests.yml".format(
             EXAMPLES_BUILD_IMAGE_NAME
         )
@@ -76,8 +87,3 @@ def bump(ctx, submodule, ver=None):
         for f in VERSIONED_FILES[submodule]:
             sed_cmd = "sed -i 's/{}/{}/g' {}".format(old_ver, new_ver, f)
             run(sed_cmd, shell=True, check=True)
-
-
-@task
-def foo(ctx):
-    print(get_faasm_version())
