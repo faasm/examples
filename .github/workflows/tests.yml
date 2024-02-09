@@ -130,7 +130,7 @@ jobs:
     env:
       CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.21.1
+      FAASM_VERSION: 0.21.2
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
