@@ -46,15 +46,18 @@ def build(ctx, clean=False, native=False):
     # Build the MPI kernels
     work_env["FAASM_KERNEL_TYPE"] = "mpi"
     mpi_kernel_targets = [
-        ("MPI1/Synch_global", "global"),
-        ("MPI1/Synch_p2p", "p2p"),
-        ("MPI1/Sparse", "sparse"),
-        ("MPI1/Transpose", "transpose"),
-        ("MPI1/Stencil", "stencil"),
+        ("MPI1/AMR", "amr"),
+        ("MPI1/Branch", "branch"),
         ("MPI1/DGEMM", "dgemm"),
         ("MPI1/Nstream", "nstream"),
-        ("MPI1/Reduce", "reduce"),
+        ("MPI1/PIC-static", "pic"),
         ("MPI1/Random", "random"),
+        ("MPI1/Reduce", "reduce"),
+        ("MPI1/Sparse", "sparse"),
+        ("MPI1/Stencil", "stencil"),
+        ("MPI1/Synch_global", "global"),
+        ("MPI1/Synch_p2p", "p2p"),
+        ("MPI1/Transpose", "transpose"),
     ]
     for subdir, make_target in mpi_kernel_targets:
         make_cmd = "make {}".format(make_target)
