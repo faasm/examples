@@ -36,7 +36,7 @@ RUN cd /tmp/openmpi-4.1.0 \
 # Install OpenMP
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update \
-    && apt install -y libomp-13-dev
+    && apt install -y libomp-17-dev
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
