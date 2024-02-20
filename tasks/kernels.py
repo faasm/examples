@@ -1,4 +1,4 @@
-from faasmtools.build import FAASM_BUILD_ENV_DICT
+from faasmtools.build import get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_copy_upload
 from invoke import task
 from os import environ, makedirs
@@ -33,7 +33,7 @@ def build(ctx, clean=False, native=False):
 
     work_env = environ.copy()
     if not native:
-        work_env.update(FAASM_BUILD_ENV_DICT)
+        work_env.update(get_faasm_build_env_dict())
         work_env["FAASM_WASM"] = "on"
     else:
         work_env.update(
@@ -77,6 +77,19 @@ def build(ctx, clean=False, native=False):
 
     # Clean MPI wasm files
     run("make clean", shell=True, check=True, cwd=kernels_dir)
+
+    # Re-start the work environment to use the wasm32-wasi-threads target
+    work_env = environ.copy()
+    if not native:
+        work_env.update(get_faasm_build_env_dict(is_threads=True))
+        work_env["FAASM_WASM"] = "on"
+    else:
+        work_env.update(
+            {
+                "LD_LIBRARY_PATH": "/usr/local/lib",
+                "FAASM_WASM": "off",
+            }
+        )
 
     # Build the OMP kernels
     work_env["FAASM_KERNEL_TYPE"] = "omp"

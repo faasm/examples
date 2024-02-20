@@ -1,11 +1,6 @@
 from faasmtools.build import (
-    BASE_CONFIG_CMD,
-    WASM_CFLAGS,
-    WASM_CXXFLAGS,
-    WASM_HOST,
-    WASM_LDFLAGS,
-    WASM_HEADER_INSTALL,
-    WASM_LIB_INSTALL,
+    build_config_cmd,
+    get_faasm_build_env_dict,
 )
 from invoke import task
 from os import cpu_count
@@ -32,18 +27,17 @@ def lite(ctx, clean=False):
     cores = cpu_count()
     make_cores = int(cores) - 1
 
+    build_env = get_faasm_build_env_dict()
     make_target = "lib"
-    make_cmd = ["make -j {}".format(make_cores)]
-    make_cmd.extend(BASE_CONFIG_CMD)
+    make_cmd = build_config_cmd(
+        build_env,
+        "make -j {}".format(make_cores),
+        conf_args=False,
+    )
     make_cmd.extend(
         [
-            'CFLAGS="{} -ftls-model=local-exec"'.format(" ".join(WASM_CFLAGS)),
-            'CXXFLAGS="{}"'.format(" ".join(WASM_CXXFLAGS)),
-            'LDFLAGS="{} -Xlinker --max-memory=4294967296"'.format(
-                " ".join(WASM_LDFLAGS)
-            ),
             "MINIMAL_SRCS=",
-            "TARGET={}".format(WASM_HOST),
+            "TARGET={}".format(build_env["FAASM_WASM_TRIPLE"]),
             "BUILD_WITH_MMAP=false",
             'LIBS="-lstdc++"',
             '-C "{}"'.format(tf_dir),
@@ -53,7 +47,9 @@ def lite(ctx, clean=False):
 
     make_cmd.append(make_target)
 
-    clean_dir = join(tf_make_dir, "gen", "wasm32-unknown-wasi_x86_64")
+    clean_dir = join(
+        tf_make_dir, "gen", "{}_x86_64".format(build_env["FAASM_WASM_TRIPLE"])
+    )
     if clean and exists(clean_dir):
         rmtree(clean_dir)
 
@@ -63,13 +59,15 @@ def lite(ctx, clean=False):
     # Install static library
     tf_lib_dir = join(clean_dir, "lib")
     cp_cmd = "cp {}/libtensorflow-lite.a {}/libtensorflow-lite.a".format(
-        tf_lib_dir, WASM_LIB_INSTALL
+        tf_lib_dir, build_env["FAASM_WASM_LIB_INSTALL_DIR"]
     )
     print(cp_cmd)
     run(cp_cmd, shell=True, check=True)
 
     # Install header files
-    header_install_dir = join(WASM_HEADER_INSTALL, "tensorflow")
+    header_install_dir = join(
+        build_env["FAASM_WASM_HEADER_INSTALL_DIR"], "tensorflow"
+    )
     if exists(header_install_dir):
         rmtree(header_install_dir)
 

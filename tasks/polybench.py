@@ -1,4 +1,4 @@
-from faasmtools.build import CMAKE_TOOLCHAIN_FILE, FAASM_BUILD_ENV_DICT
+from faasmtools.build import CMAKE_TOOLCHAIN_FILE, get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_copy_upload
 from faasmtools.env import LLVM_VERSION
 from tasks.env import EXAMPLES_DIR
@@ -47,7 +47,7 @@ def build(ctx, clean=False, native=False):
     cmake_cmd = " ".join(cmake_cmd)
 
     work_env = environ.copy()
-    work_env.update(FAASM_BUILD_ENV_DICT)
+    work_env.update(get_faasm_build_env_dict())
 
     run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
     run(

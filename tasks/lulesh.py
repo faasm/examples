@@ -1,4 +1,4 @@
-from faasmtools.build import CMAKE_TOOLCHAIN_FILE, FAASM_BUILD_ENV_DICT
+from faasmtools.build import CMAKE_TOOLCHAIN_FILE, get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_copy_upload
 from invoke import task
 from os import environ, makedirs
@@ -47,7 +47,7 @@ def build(ctx, clean=False, native=False):
 
     work_env = environ.copy()
     if not native:
-        work_env.update(FAASM_BUILD_ENV_DICT)
+        work_env.update(get_faasm_build_env_dict(is_threads=True))
 
     run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
     run("cmake --build . --target all", shell=True, check=True, cwd=build_dir)

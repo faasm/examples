@@ -1,14 +1,4 @@
-from faasmtools.build import (
-    WASM_SYSROOT,
-    WASM_LIB_INSTALL,
-    WASM_CC,
-    WASM_CXX,
-    WASM_AR,
-    WASM_NM,
-    WASM_RANLIB,
-    WASM_CFLAGS,
-    WASM_LDFLAGS,
-)
+from faasmtools.build import get_faasm_build_env_dict
 from invoke import task
 from os.path import join
 from subprocess import run
@@ -25,12 +15,14 @@ def ffmpeg(ctx, clean=False):
     if clean:
         run("make clean", shell=True, cwd=ffmpeg_dir, check=True)
 
+    build_env = get_faasm_build_env_dict()
+
     # List of flags inspired from the github project:
     # https://github.com/ffmpegwasm/ffmpeg.wasm-core
     configure_cmd = [
         "./configure",
-        "--prefix={}".format(WASM_SYSROOT),
-        "--libdir={}".format(WASM_LIB_INSTALL),
+        "--prefix={}".format(build_env["FAASM_WASM_SYSROOT"]),
+        "--libdir={}".format(build_env["FAASM_WASM_HEADER_INSTALL_DIR"]),
         "--target-os=none",
         "--arch=x86_32",
         "--enable-cross-compile",
@@ -41,16 +33,18 @@ def ffmpeg(ctx, clean=False):
         "--disable-programs",
         "--disable-doc",
         "--disable-zlib",
-        "--extra-cflags='{}'".format(" ".join(WASM_CFLAGS)),
-        "--extra-cxxflags='{}'".format(" ".join(WASM_CFLAGS)),
-        "--extra-ldflags='{}'".format(" ".join(WASM_LDFLAGS)),
-        "--nm={}".format(WASM_NM),
-        "--ar={}".format(WASM_AR),
-        "--ranlib={}".format(WASM_RANLIB),
-        "--cc={}".format(WASM_CC),
-        "--cxx={}".format(WASM_CXX),
-        "--objcc={}".format(WASM_CC),
-        "--dep-cc={}".format(WASM_CC),
+        "--extra-cflags='{}'".format(build_env["FAASM_WASM_CFLAGS"]),
+        "--extra-cxxflags='{}'".format(build_env["FAASM_WASM_CXXFLAGS"]),
+        "--extra-ldflags='{}'".format(
+            build_env["FAASM_WASM_STATIC_LINKER_FLAGS"]
+        ),
+        "--nm={}".format(build_env["FAASM_WASM_NM"]),
+        "--ar={}".format(build_env["FAASM_WASM_AR"]),
+        "--ranlib={}".format(build_env["FAASM_WASM_RANLIB"]),
+        "--cc={}".format(build_env["FAASM_WASM_CC"]),
+        "--cxx={}".format(build_env["FAASM_WASM_CXX"]),
+        "--objcc={}".format(build_env["FAASM_WASM_CC"]),
+        "--dep-cc={}".format(build_env["FAASM_WASM_CC"]),
     ]
 
     configure_cmd = " ".join(configure_cmd)
