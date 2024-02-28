@@ -1,24 +1,6 @@
 ARG CPP_VERSION
-FROM ubuntu:22.04 as base
-
-RUN apt update \
-    && apt install -y \
-        bzip2 \
-        gcc \
-        g++ \
-        make \
-        wget
-
-# Download and build MPI
-RUN mkdir -p /tmp \
-    && cd /tmp \
-    && wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2 \
-    && tar xf openmpi-4.1.0.tar.bz2 \
-    && cd /tmp/openmpi-4.1.0 \
-    && ./configure --prefix=/usr/local \
-    && make -j `nproc`
-
-ARG CPP_VERSION
+ARG EXAMPLES_VERSION
+FROM faasm.azurecr.io/examples-base:${EXAMPLES_VERSION} as base
 FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
 
 SHELL ["/bin/bash", "-c"]
@@ -60,31 +42,33 @@ RUN mkdir -p code \
 
 # Build the examples and demo functions
 RUN cd /code/examples \
-    && ./bin/create_venv.sh \
+    && ./bin/create_venv.sh
     && source venv/bin/activate \
     # Build the native versions of the examples that support it
     && inv \
         kernels --native \
         lammps --native \
         lammps --migration --native \
+        lammps --migration-net --native \
         lulesh --native \
         polybench --native \
     && inv \
         ffmpeg \
-        # ImageMagick needs libpng
-        libpng imagemagick \
+    #         # ImageMagick needs libpng
+#         libpng imagemagick \
         kernels \
         lammps \
         lammps --migration \
+        lammps --migration-net \
         lulesh \
-        polybench \
-        tensorflow \
-    # These demo functions link with the cross-compiled static libraries
-    && inv \
-        func ffmpeg check \
-        func lammps chain \
-        func mpi migrate \
-        func tf check
+    #         polybench \
+    #         tensorflow \
+    #     # These demo functions link with the cross-compiled static libraries
+#     && inv \
+    #         func ffmpeg check \
+    #         func lammps chain \
+    #         func mpi migrate \
+    #         func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples

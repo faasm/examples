@@ -13,10 +13,12 @@ from tasks.env import (
 
 
 @task(default=True)
-def cli(ctx, service, clean=False):
+def cli(ctx, clean=False):
     """
-    Get a shell into one of the containers: `build` or `run`
+    Get a shell into the examples build container
     """
+    service = "build"
+
     if clean:
         # Clean existing build
         if exists(DEV_FAASM_LOCAL):

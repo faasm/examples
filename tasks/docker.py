@@ -4,52 +4,50 @@ from faasmtools.docker import (
     push_container,
 )
 from tasks.env import (
+    EXAMPLES_BASE_DOCKERFILE,
+    EXAMPLES_BASE_IMAGE_NAME,
     EXAMPLES_BUILD_DOCKERFILE,
     EXAMPLES_BUILD_IMAGE_NAME,
-    EXAMPLES_RUN_DOCKERFILE,
-    EXAMPLES_RUN_IMAGE_NAME,
     DOCKER_ROOT,
-    get_faasm_version,
     get_python_version,
     get_version,
 )
 from invoke import task
 
 
-def get_tag(name):
-    version = get_version(name)
-    if name == "build":
-        image_name = EXAMPLES_BUILD_IMAGE_NAME
-    elif name == "run":
-        image_name = EXAMPLES_RUN_IMAGE_NAME
-    return "{}:{}".format(image_name, version)
+def get_tag(c):
+    image_name = (
+        EXAMPLES_BUILD_IMAGE_NAME if c == "build" else EXAMPLES_BASE_IMAGE_NAME
+    )
+    return "{}:{}".format(image_name, get_version())
 
 
-@task(iterable=["c"])
-def build(ctx, c, nocache=False, push=False):
+@task(iterable=["ctr"])
+def build(ctx, ctr, nocache=False, push=False):
     """
-    Build container image, possible containers are `build` and `run`
+    Build container image. Must be one in: `build`, `base`
     """
-    build_args = {}
-    for ctr in c:
-        if ctr == "build":
+    for c in ctr:
+        if c == "build":
             build_args = {
                 "CPP_VERSION": get_cpp_version(),
                 "EXAMPLES_VERSION": get_version(),
                 "PYTHON_VERSION": get_python_version(),
             }
+
             dockerfile = EXAMPLES_BUILD_DOCKERFILE
-        elif ctr == "run":
+        elif c == "base":
             build_args = {
-                "EXAMPLES_VERSION": get_version(),
-                "FAASM_VERSION": get_faasm_version(),
+                "OPENMPI_VERSION": "4.1.0",
+                "OPENMPI_VERSION_NOPATCH": "4.1",
             }
-            dockerfile = EXAMPLES_RUN_DOCKERFILE
+
+            dockerfile = EXAMPLES_BASE_DOCKERFILE
         else:
-            raise RuntimeError("Unrecognised container name: {}".format(ctr))
+            raise RuntimeError("Unrecognised container name: {}".format(c))
 
         build_container(
-            get_tag(ctr),
+            get_tag(c),
             dockerfile,
             DOCKER_ROOT,
             nocache=nocache,
@@ -63,4 +61,4 @@ def push(ctx):
     """
     Push container image
     """
-    push_container(get_tag("build"))
+    push_container(get_tag())
