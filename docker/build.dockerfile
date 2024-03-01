@@ -42,7 +42,7 @@ RUN mkdir -p code \
 
 # Build the examples and demo functions
 RUN cd /code/examples \
-    && ./bin/create_venv.sh
+    && ./bin/create_venv.sh \
     && source venv/bin/activate \
     # Build the native versions of the examples that support it
     && inv \
