@@ -1,6 +1,6 @@
 from faasmtools.build import CMAKE_TOOLCHAIN_FILE, get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_copy_upload
-from faasmtools.env import LLVM_VERSION
+from faasmtools.env import LLVM_NATIVE_VERSION
 from tasks.env import DEV_FAASM_LOCAL, EXAMPLES_DIR, in_docker
 from tasks.util import run_docker_build_cmd
 from invoke import task
@@ -46,7 +46,7 @@ def build(
     ]
 
     if native:
-        llvm_major = LLVM_VERSION.split(".")[0]
+        llvm_major = LLVM_NATIVE_VERSION.split(".")[0]
         cmake_cmd += [
             "-DCMAKE_C_COMPILER=/usr/bin/clang-{}".format(llvm_major),
             "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-{}".format(llvm_major),

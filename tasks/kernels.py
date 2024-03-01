@@ -1,4 +1,4 @@
-from faasmtools.env import LLVM_VERSION
+from faasmtools.env import LLVM_NATIVE_VERSION
 from faasmtools.build import get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_copy_upload
 from invoke import task
@@ -40,7 +40,7 @@ def build(ctx, clean=False, native=False):
         work_env.update(
             {
                 "LD_LIBRARY_PATH": "/usr/local/lib",
-                "LLVM_MAJOR_VERSION": LLVM_VERSION.split(".")[0],
+                "LLVM_MAJOR_VERSION": LLVM_NATIVE_VERSION.split(".")[0],
                 "FAASM_WASM": "off",
             }
         )
@@ -89,7 +89,7 @@ def build(ctx, clean=False, native=False):
         work_env.update(
             {
                 "LD_LIBRARY_PATH": "/usr/local/lib",
-                "LLVM_MAJOR_VERSION": LLVM_VERSION.split(".")[0],
+                "LLVM_MAJOR_VERSION": LLVM_NATIVE_VERSION.split(".")[0],
                 "FAASM_WASM": "off",
             }
         )
