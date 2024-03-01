@@ -26,10 +26,8 @@ jobs:
           submodules: true
       - name: "Set version variables"
         run: |
-          FAASM_VER=$(cat FAASM_VERSION)
           CPP_VER=$(cat cpp/VERSION)
           PYTHON_VER=$(cat python/VERSION)
-          echo "FAASM_VERSION=$FAASM_VER" >> $GITHUB_ENV
           echo "CPP_VERSION=$CPP_VER" >> $GITHUB_ENV
           echo "PYTHON_VERSION=$PYTHON_VER" >> $GITHUB_ENV
           echo "EXAMPLES_VERSION=${CPP_VER}_${PYTHON_VER}" >> $GITHUB_ENV
