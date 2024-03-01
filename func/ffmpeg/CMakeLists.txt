@@ -2,15 +2,15 @@ set(FAASM_USER ffmpeg)
 
 # FFmpeg build
 set(FFMPEG_INCLUDE_DIRS
-    ${CMAKE_SYSROOT}/include/libavcodec
-    ${CMAKE_SYSROOT}/include/libavformat
+    $ENV{FAASM_WASM_HEADER_INSTALL_DIR}/libavcodec
+    $ENV{FAASM_WASM_HEADER_INSTALL_DIR}/libavformat
 )
 set(FFMPEG_LIBS
-    ${CMAKE_SYSROOT}/lib/wasm32-wasi/libavcodec.a
-    ${CMAKE_SYSROOT}/lib/wasm32-wasi/libavformat.a
-    ${CMAKE_SYSROOT}/lib/wasm32-wasi/libavutil.a
-    ${CMAKE_SYSROOT}/lib/wasm32-wasi/libswscale.a
-    ${CMAKE_SYSROOT}/lib/wasm32-wasi/libswresample.a
+    $ENV{FAASM_WASM_LIB_INSTALL_DIR}/libavcodec.a
+    $ENV{FAASM_WASM_LIB_INSTALL_DIR}/libavformat.a
+    $ENV{FAASM_WASM_LIB_INSTALL_DIR}/libavutil.a
+    $ENV{FAASM_WASM_LIB_INSTALL_DIR}/libswscale.a
+    $ENV{FAASM_WASM_LIB_INSTALL_DIR}/libswresample.a
 )
 
 faasm_example_func(check check.cpp)

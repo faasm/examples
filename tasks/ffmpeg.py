@@ -22,7 +22,7 @@ def ffmpeg(ctx, clean=False):
     configure_cmd = [
         "./configure",
         "--prefix={}".format(build_env["FAASM_WASM_SYSROOT"]),
-        "--libdir={}".format(build_env["FAASM_WASM_HEADER_INSTALL_DIR"]),
+        "--libdir={}".format(build_env["FAASM_WASM_LIB_INSTALL_DIR"]),
         "--target-os=none",
         "--arch=x86_32",
         "--enable-cross-compile",
