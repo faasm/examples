@@ -1,7 +1,4 @@
-from faasmtools.build import (
-    build_config_cmd,
-    get_faasm_build_env_dict,
-)
+from faasmtools.build import get_faasm_build_env_dict
 from invoke import task
 from os import cpu_count
 from os.path import exists, isfile, join
@@ -27,24 +24,26 @@ def lite(ctx, clean=False):
     cores = cpu_count()
     make_cores = int(cores) - 1
 
-    build_env = get_faasm_build_env_dict()
+    build_env = get_faasm_build_env_dict(is_threads=True)
     make_target = "lib"
-    make_cmd = build_config_cmd(
-        build_env,
+    make_cmd = [
         "make -j {}".format(make_cores),
-        conf_args=False,
-    )
-    make_cmd.extend(
-        [
-            "MINIMAL_SRCS=",
-            "TARGET={}".format(build_env["FAASM_WASM_TRIPLE"]),
-            "BUILD_WITH_MMAP=false",
-            'LIBS="-lstdc++"',
-            '-C "{}"'.format(tf_dir),
-            "-f tensorflow/lite/tools/make/Makefile",
-        ]
-    )
-
+        "CC={}".format(build_env["FAASM_WASM_CC"]),
+        "CXX={}".format(build_env["FAASM_WASM_CXX"]),
+        "AR={}".format(build_env["FAASM_WASM_AR"]),
+        "RANLIB={}".format(build_env["FAASM_WASM_RANLIB"]),
+        'CFLAGS="--target={} {}"'.format(
+            build_env["FAASM_WASM_TRIPLE"], build_env["FAASM_WASM_CFLAGS"]
+        ),
+        'CXXFLAGS="--target={} {}"'.format(
+            build_env["FAASM_WASM_TRIPLE"], build_env["FAASM_WASM_CXXFLAGS"]
+        ),
+        "MINIMAL_SRCS=",
+        "TARGET={}".format(build_env["FAASM_WASM_TRIPLE"]),
+        "BUILD_WITH_MMAP=false",
+        '-C "{}"'.format(tf_dir),
+        "-f tensorflow/lite/tools/make/Makefile",
+    ]
     make_cmd.append(make_target)
 
     clean_dir = join(
@@ -54,7 +53,8 @@ def lite(ctx, clean=False):
         rmtree(clean_dir)
 
     make_cmd = " ".join(make_cmd)
-    run(make_cmd, shell=True, check=True, cwd=tf_lite_dir)
+    print(make_cmd)
+    run(make_cmd, shell=True, check=True, cwd=tf_lite_dir, env=build_env)
 
     # Install static library
     tf_lib_dir = join(clean_dir, "lib")
