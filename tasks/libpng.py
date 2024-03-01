@@ -29,7 +29,7 @@ def libpng(ctx, clean=False):
         "WASM_CC={}".format(build_env["FAASM_WASM_CC"]),
         "WASM_AR={}".format(build_env["FAASM_WASM_AR"]),
         "WASM_RANLIB={}".format(build_env["FAASM_WASM_RANLIB"]),
-        "WASM_CFLAGS='{}'".format(" ".join(wasm_cflags_nosimd)),
+        "WASM_CFLAGS='{}'".format(wasm_cflags_nosimd),
         "WASM_LDFLAGS='{}'".format(
             build_env["FAASM_WASM_STATIC_LINKER_FLAGS"]
         ),

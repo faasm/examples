@@ -54,21 +54,21 @@ RUN cd /code/examples \
         polybench --native \
     && inv \
         ffmpeg \
-    #         # ImageMagick needs libpng
-#         libpng imagemagick \
+        # ImageMagick needs libpng
+        libpng imagemagick \
         kernels \
         lammps \
         lammps --migration \
         lammps --migration-net \
         lulesh \
-    #         polybench \
-    #         tensorflow \
-    #     # These demo functions link with the cross-compiled static libraries
-#     && inv \
-    #         func ffmpeg check \
-    #         func lammps chain \
-    #         func mpi migrate \
-    #         func tf check
+        polybench \
+        tensorflow \
+    # These demo functions link with the cross-compiled static libraries
+    && inv \
+        func ffmpeg check \
+        func lammps chain \
+        func mpi migrate \
+        func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples
