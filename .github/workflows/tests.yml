@@ -205,7 +205,7 @@ jobs:
           faasmctl invoke kernels-mpi p2p --cmdline '10 1024 1024' --mpi-world-size 4
           faasmctl invoke kernels-mpi transpose --cmdline '10 1024 32' --mpi-world-size 4
       - name: "Run OpenMP kernels"
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
         run: |
           faasmctl invoke kernels-omp global --cmdline '2 10 1024'
