@@ -1,5 +1,9 @@
 set(FAASM_USER tf)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --target=$ENV{FAASM_WASM_TRIPLE} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --target=$ENV{FAASM_WASM_TRIPLE} -pthread")
+set(CMAKE_EXE_LINKER_FLAGS "$ENV{FAASM_WASM_EXE_LINKER_FLAGS}")
+
 set(TF_LIB libtensorflow-lite.a)
 
 faasm_example_func(check check.cpp)
