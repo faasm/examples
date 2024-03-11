@@ -47,8 +47,8 @@ jobs:
           push: true
           file: docker/base.dockerfile
           build-args: |
-            OPENMPI_VERSION="4.1.0"
-            OPENMPI_VERSION_NOPATCH="4.1"
+            OPENMPI_VERSION=4.1.0
+            OPENMPI_VERSION_NOPATCH=4.1
           context: .
           tags: faasm.azurecr.io/examples-base:${{ env.EXAMPLES_VERSION }}
       - name: "Build and push examples-build image"

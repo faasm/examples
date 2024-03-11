@@ -55,10 +55,14 @@ def build(ctx, ctr, nocache=False, push=False):
             build_args=build_args,
         )
 
+        if push:
+            push(ctx, [c])
 
-@task()
-def push(ctx):
+
+@task(iterable=["ctr"])
+def push(ctx, ctr):
     """
     Push container image
     """
-    push_container(get_tag())
+    for c in ctr:
+        push_container(get_tag(c))
