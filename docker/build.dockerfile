@@ -35,6 +35,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/Kernels \
     && git submodule update --init -f examples/lammps \
     && git submodule update --init -f examples/lammps-migration \
+    && git submodule update --init -f examples/lammps-migration-net \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/polybench \
@@ -45,30 +46,28 @@ RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
     # Build the native versions of the examples that support it
-    && inv \
-        kernels --native \
-        lammps --native \
-        lammps --migration --native \
-        lammps --migration-net --native \
-        lulesh --native \
-        polybench --native \
-    && inv \
-        ffmpeg \
-        # ImageMagick needs libpng
-        libpng imagemagick \
-        kernels \
-        lammps \
-        lammps --migration \
-        lammps --migration-net \
-        lulesh \
-        polybench \
-        tensorflow \
+    && inv kernels --native \
+    && inv lammps --native \
+    && inv lammps --migration --native \
+    && inv lammps --migration-net --native \
+    && inv lulesh --native \
+    && inv polybench --native \
+    # Build the WASM applications
+    && inv ffmpeg \
+    # ImageMagick needs libpng
+    && inv libpng imagemagick \
+    && inv kernels \
+    && inv lammps \
+    && inv lammps --migration \
+    && inv lammps --migration-net \
+    && inv lulesh \
+    && inv polybench \
+    && inv tensorflow \
     # These demo functions link with the cross-compiled static libraries
-    && inv \
-        func ffmpeg check \
-        func lammps chain \
-        func mpi migrate \
-        func tf check
+    && inv func ffmpeg check \
+    && inv func lammps chain \
+    && inv func mpi migrate \
+    && inv func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples
