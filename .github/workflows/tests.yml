@@ -210,8 +210,7 @@ jobs:
         run: |
           faasmctl invoke kernels-omp global --cmdline '2 10 1024'
           faasmctl invoke kernels-omp p2p --cmdline '2 10 1024 1024'
-          # The sparse OpenMP kernel fails during the result integrity checks
-          # faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5'
+          faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5'
           # The transpose OpenMP kernel can not be cross-compiled due to problems
           # with the static_for signature and symbol definition
           # faasmctl invoke kernels-omp transpose --cmdline '10 1024 32'
