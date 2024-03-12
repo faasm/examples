@@ -179,7 +179,11 @@ jobs:
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
           fail-on-cache-miss: true
       - name: "Upload all WASM files to the cluster"
+        id: wasm-upload
         run: ./bin/inv_wrapper.sh wasm.upload
+      - name: "Print logs if wasm-upload fails"
+        if: ${{ steps.wasm-upload.outcome == 'failure' }}
+        run: faasmctl logs -s upload
       - name: "Run MPI kernels"
         timeout-minutes: 2
         run: |
@@ -279,3 +283,6 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
+      - name: "Print logs in case of failure"
+        if: failure()
+        run: faasmctl logs -s worker

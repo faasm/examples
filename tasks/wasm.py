@@ -55,6 +55,7 @@ def upload(ctx):
         for name in listdir(join(WASM_DIR, user)):
             wasm_path = join(WASM_DIR, user, name, "function.wasm")
             if exists(wasm_path):
+                print("Uploading  {}/{} (path: {})".format(user, name, wasm_path))
                 upload_wasm(user, name, wasm_path)
 
     # Iterate over all shared data files and upload
