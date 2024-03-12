@@ -128,7 +128,6 @@ jobs:
       run:
         shell: bash
     env:
-      CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
       FAASM_VERSION: 0.22.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
@@ -182,7 +181,7 @@ jobs:
         id: wasm-upload
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Print logs if wasm-upload fails"
-        if: ${{ steps.wasm-upload.outcome == 'failure' }}
+        if: failure() && ${{ steps.wasm-upload.outcome == 'failure' }}
         run: faasmctl logs -s upload
       - name: "Run MPI kernels"
         timeout-minutes: 2
@@ -271,11 +270,10 @@ jobs:
       - name: "Run LAMMPS migration-net binary"
         timeout-minutes: 1
         run: faasmctl invoke lammps migration-net --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2 10 2'
-          # 08/12/2023 - LULESH is broken with a memory leak
-          #       - name: "Run LULESH"
-          #         timeout-minutes: 1
-          #         if: "contains(env.FAASM_WASM_VM, 'wavm')"
-          #         run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
+      - name: "Run LULESH"
+        timeout-minutes: 1
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
       - name: "Run TFlite check"
         timeout-minutes: 1
         if: "contains(env.FAASM_WASM_VM, 'wavm')"
