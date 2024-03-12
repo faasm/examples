@@ -33,32 +33,24 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
-      needs-wasm: ${{ (steps.filter.outputs.examples-changed == 'true') || (steps.wasm-cache.outputs.cache-hit != 'true') }}
+      needs-wasm: ${{ steps.wasm-cache.outputs.cache-hit != 'true' }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      # Check if any of the submodules have been modified
-      - uses: dorny/paths-filter@v3
-        id: filter
         with:
-          filters: |
-            examples-changed:
-              - './examples/**'
+          submodules: true
       # Check if we have a WASM cache hit
-      - name: "Get CPP/Python commits"
+      - name: "Get digest of all submodules"
         id: submodule-commit
         run: |
-          git submodule update --init ./cpp
-          git submodule update --init ./python
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - uses: actions/cache/restore@v4
         id: wasm-cache
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.digest }}
           lookup-only: true
 
   build-examples:
@@ -100,8 +92,7 @@ jobs:
         run: |
           apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
           # Also move to a different path to restore from
           mv /usr/local/faasm/wasm ./wasm
       # If we are here we _always_ want to overwrite the cache
@@ -110,7 +101,7 @@ jobs:
         if: always()
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.digest }}
 
   run-examples-faasmctl:
     needs: [build-examples]
@@ -148,6 +139,7 @@ jobs:
           remove-docker-images: 'true'
           remove-dotnet: 'true'
           remove-haskell: 'true'
+
       - name: "Checkout code"
         uses: actions/checkout@v4
       - name: "Install faasmctl"
