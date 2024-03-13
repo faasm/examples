@@ -158,16 +158,13 @@ jobs:
         run: |
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git submodule update --init ./cpp
-          git submodule update --init ./python
-          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: "Get WASM cache"
         uses: actions/cache/restore@v4
         id: cpp-wasm-cache
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.digest }}
           fail-on-cache-miss: true
       - name: "Upload all WASM files to the cluster"
         id: wasm-upload
@@ -182,11 +179,9 @@ jobs:
           # in tasks/kernels.py
           # amr: does not work because we are missing MPI_Comm_split
           # faasmctl invoke kernels-mpi amr --cmdline '10 1024 16 16 16 8 4 HIGH_WATER' --mpi-world-size 4
-          echo "branch"
           # faasmctl invoke kernels-mpi branch --cmdline '10 10 vector_go' --mpi-world-size 4
           # dgemm: does not work because we are missing MPI_Comm_group, MPI_Group_incl, and MPI_Comm_create
           # faasmctl invoke kernels-mpi dgemm --cmdline '10 1024 32 1' --mpi-world-size 4
-          echo "nstream"
           faasmctl invoke kernels-mpi nstream --cmdline '10 1024 32' --mpi-world-size 4
           # pic: does not work due to what looks like an integer overflow
           # faasmctl invoke kernels-mpi pic --cmdline "10 10 10 2 5 SINUSOIDAL" --mpi-world-size 4
