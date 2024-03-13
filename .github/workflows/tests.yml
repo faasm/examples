@@ -248,10 +248,11 @@ jobs:
           faasmctl invoke polybench poly_jacobi-1d
           faasmctl invoke polybench poly_jacobi-2d
           faasmctl invoke polybench poly_seidel-2d
-      - name: "Run ImageMagick"
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
-        timeout-minutes: 1
-        run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+          # TODO(wamr-tf): TF Check broken with WAVM, uncomment when WAMR supports it
+          #       - name: "Run ImageMagick"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 1
+          #         run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
         timeout-minutes: 1
         run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4
