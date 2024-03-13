@@ -16,8 +16,8 @@ WASM_DIR = join(PROJ_ROOT, "wasm")
 EXAMPLES_BUILD_IMAGE_CTR = "examples-build-workon"
 EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
-EXAMPLES_RUN_IMAGE_NAME = "{}/examples-run".format(ACR_NAME)
-EXAMPLES_RUN_DOCKERFILE = join(DOCKER_ROOT, "run.dockerfile")
+EXAMPLES_BASE_IMAGE_NAME = "{}/examples-base".format(ACR_NAME)
+EXAMPLES_BASE_DOCKERFILE = join(DOCKER_ROOT, "base.dockerfile")
 
 # Shared files data
 EXAMPLES_DATA_BASE_DIR = join(FAASM_LOCAL_DIR, "shared")

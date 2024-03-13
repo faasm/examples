@@ -33,32 +33,24 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
-      needs-wasm: ${{ (steps.filter.outputs.examples-changed == 'true') || (steps.wasm-cache.outputs.cache-hit != 'true') }}
+      needs-wasm: ${{ steps.wasm-cache.outputs.cache-hit != 'true' }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      # Check if any of the submodules have been modified
-      - uses: dorny/paths-filter@v3
-        id: filter
         with:
-          filters: |
-            examples-changed:
-              - './examples/**'
+          submodules: true
       # Check if we have a WASM cache hit
-      - name: "Get CPP/Python commits"
+      - name: "Get digest of all submodules"
         id: submodule-commit
         run: |
-          git submodule update --init ./cpp
-          git submodule update --init ./python
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - uses: actions/cache/restore@v4
         id: wasm-cache
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.digest }}
           lookup-only: true
 
   build-examples:
@@ -66,7 +58,7 @@ jobs:
     if: ${{ needs.needs-build.outputs.needs-wasm == 'true' }}
     runs-on: ubuntu-latest
     container:
-      image: faasm.azurecr.io/examples-build:0.3.1_0.3.1
+      image: faasm.azurecr.io/examples-build:0.4.0_0.4.0
       credentials:
         username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
         password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
@@ -100,8 +92,7 @@ jobs:
         run: |
           apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "cpp-commit=$(git submodule status ./cpp | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
-          echo "py-commit=$(git submodule status ./python | cut '-d ' -f 2)" >> $GITHUB_OUTPUT
+          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
           # Also move to a different path to restore from
           mv /usr/local/faasm/wasm ./wasm
       # If we are here we _always_ want to overwrite the cache
@@ -110,7 +101,7 @@ jobs:
         if: always()
         with:
           path: ./wasm
-          key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
+          key: wasm-${{ steps.submodule-commit.outputs.digest }}
 
   run-examples-faasmctl:
     needs: [build-examples]
@@ -128,9 +119,8 @@ jobs:
       run:
         shell: bash
     env:
-      CONAN_CACHE_MOUNT_SOURCE: ~/.conan
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.21.2
+      FAASM_VERSION: 0.22.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -149,6 +139,7 @@ jobs:
           remove-docker-images: 'true'
           remove-dotnet: 'true'
           remove-haskell: 'true'
+
       - name: "Checkout code"
         uses: actions/checkout@v4
       - name: "Install faasmctl"
@@ -179,7 +170,11 @@ jobs:
           key: wasm-${{ steps.submodule-commit.outputs.cpp-commit }}-${{ steps.submodule-commit.outputs.py-commit }}
           fail-on-cache-miss: true
       - name: "Upload all WASM files to the cluster"
+        id: wasm-upload
         run: ./bin/inv_wrapper.sh wasm.upload
+      - name: "Print logs if wasm-upload fails"
+        if: failure() && (steps.wasm-upload.outcome == 'failure')
+        run: faasmctl logs -s upload
       - name: "Run MPI kernels"
         timeout-minutes: 2
         run: |
@@ -205,13 +200,12 @@ jobs:
           faasmctl invoke kernels-mpi p2p --cmdline '10 1024 1024' --mpi-world-size 4
           faasmctl invoke kernels-mpi transpose --cmdline '10 1024 32' --mpi-world-size 4
       - name: "Run OpenMP kernels"
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
         run: |
           faasmctl invoke kernels-omp global --cmdline '2 10 1024'
           faasmctl invoke kernels-omp p2p --cmdline '2 10 1024 1024'
-          # The sparse OpenMP kernel fails during the result integrity checks
-          # faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5'
+          faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5'
           # The transpose OpenMP kernel can not be cross-compiled due to problems
           # with the static_for signature and symbol definition
           # faasmctl invoke kernels-omp transpose --cmdline '10 1024 32'
@@ -254,10 +248,11 @@ jobs:
           faasmctl invoke polybench poly_jacobi-1d
           faasmctl invoke polybench poly_jacobi-2d
           faasmctl invoke polybench poly_seidel-2d
-      - name: "Run ImageMagick"
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
-        timeout-minutes: 1
-        run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
+          # TODO(wamr-tf): TF Check broken with WAVM, uncomment when WAMR supports it
+          #       - name: "Run ImageMagick"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 1
+          #         run: faasmctl invoke imagemagick main --cmdline 'faasm://im/sample_image.png -flip faasm://im/image_out.png'
       - name: "Run LAMMPS"
         timeout-minutes: 1
         run: faasmctl invoke lammps main --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4
@@ -268,15 +263,18 @@ jobs:
       - name: "Run LAMMPS migration-net binary"
         timeout-minutes: 1
         run: faasmctl invoke lammps migration-net --cmdline '-in faasm://lammps-data/in.controller.wall' --mpi-world-size 4 --input-data '1 2 10 2'
-          # 08/12/2023 - LULESH is broken with a memory leak
-          #       - name: "Run LULESH"
-          #         timeout-minutes: 1
-          #         if: "contains(env.FAASM_WASM_VM, 'wavm')"
-          #         run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
-      - name: "Run TFlite check"
+      - name: "Run LULESH"
         timeout-minutes: 1
-        if: "contains(env.FAASM_WASM_VM, 'wavm')"
-        run: faasmctl invoke tf check
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        run: faasmctl invoke lulesh main --cmdline '-i 5 -s 20 -r 11 -c 1 -b 1' --input-data '4'
+          # TODO(wamr-tf): TF Check broken with WAVM, uncomment when WAMR supports it
+          #       - name: "Run TFlite check"
+          #         timeout-minutes: 1
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         run: faasmctl invoke tf check
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
+      - name: "Print logs in case of failure"
+        if: failure()
+        run: faasmctl logs -s worker

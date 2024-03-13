@@ -1,24 +1,6 @@
 ARG CPP_VERSION
-FROM ubuntu:22.04 as base
-
-RUN apt update \
-    && apt install -y \
-        bzip2 \
-        gcc \
-        g++ \
-        make \
-        wget
-
-# Download and build MPI
-RUN mkdir -p /tmp \
-    && cd /tmp \
-    && wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2 \
-    && tar xf openmpi-4.1.0.tar.bz2 \
-    && cd /tmp/openmpi-4.1.0 \
-    && ./configure --prefix=/usr/local \
-    && make -j `nproc`
-
-ARG CPP_VERSION
+ARG EXAMPLES_VERSION
+FROM faasm.azurecr.io/examples-base:${EXAMPLES_VERSION} as base
 FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
 
 SHELL ["/bin/bash", "-c"]
@@ -36,7 +18,7 @@ RUN cd /tmp/openmpi-4.1.0 \
 # Install OpenMP
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update \
-    && apt install -y libomp-13-dev
+    && apt install -y libomp-17-dev
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
@@ -53,6 +35,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/Kernels \
     && git submodule update --init -f examples/lammps \
     && git submodule update --init -f examples/lammps-migration \
+    && git submodule update --init -f examples/lammps-migration-net \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/polybench \
@@ -63,28 +46,28 @@ RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
     # Build the native versions of the examples that support it
-    && inv \
-        kernels --native \
-        lammps --native \
-        lammps --migration --native \
-        lulesh --native \
-        polybench --native \
-    && inv \
-        ffmpeg \
-        # ImageMagick needs libpng
-        libpng imagemagick \
-        kernels \
-        lammps \
-        lammps --migration \
-        lulesh \
-        polybench \
-        tensorflow \
+    && inv kernels --native \
+    && inv lammps --native \
+    && inv lammps --migration --native \
+    && inv lammps --migration-net --native \
+    && inv lulesh --native \
+    && inv polybench --native \
+    # Build the WASM applications
+    && inv ffmpeg \
+    # ImageMagick needs libpng
+    && inv libpng imagemagick \
+    && inv kernels \
+    && inv lammps \
+    && inv lammps --migration \
+    && inv lammps --migration-net \
+    && inv lulesh \
+    && inv polybench \
+    && inv tensorflow \
     # These demo functions link with the cross-compiled static libraries
-    && inv \
-        func ffmpeg check \
-        func lammps chain \
-        func mpi migrate \
-        func tf check
+    && inv func ffmpeg check \
+    && inv func lammps chain \
+    && inv func mpi migrate \
+    && inv func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples

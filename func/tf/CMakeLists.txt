@@ -1,12 +1,16 @@
 set(FAASM_USER tf)
 
-set(TF_LIB ${CMAKE_SYSROOT}/lib/wasm32-wasi/libtensorflow-lite.a)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --target=$ENV{FAASM_WASM_TRIPLE} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --target=$ENV{FAASM_WASM_TRIPLE} -pthread")
+set(CMAKE_EXE_LINKER_FLAGS "$ENV{FAASM_WASM_EXE_LINKER_FLAGS}")
+
+set(TF_LIB libtensorflow-lite.a)
 
 faasm_example_func(check check.cpp)
 
 set(TF_HEADERS
-    ${CMAKE_SYSROOT}/include/tensorflow
-    ${CMAKE_SYSROOT}/include/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include
+    $ENV{FAASM_WASM_HEADER_INSTALL_DIR}/tensorflow
+    $ENV{FAASM_WASM_HEADER_INSTALL_DIR}/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include
 )
 
 target_include_directories(tf_check PUBLIC ${TF_HEADERS})

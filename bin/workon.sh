@@ -49,7 +49,6 @@ complete -F _complete_invoke -o default invoke inv
 # Environment vars
 # ----------------------------
 
-export FAASM_VERSION=$(cat ${PROJ_ROOT}/FAASM_VERSION)
 export CPP_VERSION=$(cat ${PROJ_ROOT}/cpp/VERSION)
 export PYTHON_VERSION=$(cat ${PROJ_ROOT}/python/VERSION)
 
@@ -62,7 +61,6 @@ export PS1="(faasm-examples) $PS1"
 echo ""
 echo "----------------------------------"
 echo "Faasm Examples CLI"
-echo "Faasm Version: ${FAASM_VERSION}"
 echo "CPP Version: ${CPP_VERSION}"
 echo "Python Version: ${PYTHON_VERSION}"
 echo "----------------------------------"

@@ -18,9 +18,17 @@ def compile(ctx, user, func, clean=False, debug=False):
     """
     Compile a function to test a sample library
     """
+    # Keep track of which functions require the threads target
+    is_threads = user in ["tf"]
+
     # Build the function (gets written to the build dir)
     wasm_cmake(
-        FUNC_DIR, FUNC_BUILD_DIR, "{}_{}".format(user, func), clean, debug
+        FUNC_DIR,
+        FUNC_BUILD_DIR,
+        "{}_{}".format(user, func),
+        clean,
+        debug,
+        is_threads=is_threads,
     )
 
     # Copy into place
