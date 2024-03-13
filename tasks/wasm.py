@@ -1,7 +1,7 @@
 from distutils.dir_util import copy_tree
 from faasmctl.util.upload import upload_file, upload_wasm
 from invoke import task
-from os import listdir, makedirs
+from os import environ, listdir, makedirs
 from os.path import exists, join
 from shutil import copyfile, rmtree
 from tasks.env import (
@@ -50,13 +50,20 @@ def upload(ctx):
         print("Expected WASM files to be available in {}".format(WASM_DIR))
         raise RuntimeError("WASM directory not found!")
 
+    # WAVM is slowly rotting away to the point that some functions fail to
+    # generate valid code, we skip those here
+    wavm_skip_users = ["tf"]
+    is_wavm = "FAASM_WASM_VM" in environ and environ["FAASM_WASM_VM"] == "wavm"
+
     # Iterate over all dirs and upload
     for user in listdir(WASM_DIR):
         for name in listdir(join(WASM_DIR, user)):
             wasm_path = join(WASM_DIR, user, name, "function.wasm")
             if exists(wasm_path):
-                print("Uploading  {}/{} (path: {})".format(user, name, wasm_path))
-                upload_wasm(user, name, wasm_path)
+                if is_wavm and user in wavm_skip_users:
+                    print("Skipping {}/{} for WAVM".format(user, name))
+                else:
+                    upload_wasm(user, name, wasm_path)
 
     # Iterate over all shared data files and upload
     for data_file in EXAMPLES_DATA_FILES:
