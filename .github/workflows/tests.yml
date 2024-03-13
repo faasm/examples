@@ -173,7 +173,7 @@ jobs:
         id: wasm-upload
         run: ./bin/inv_wrapper.sh wasm.upload
       - name: "Print logs if wasm-upload fails"
-        if: failure() && ${{ steps.wasm-upload.outcome == 'failure' }}
+        if: failure() && (steps.wasm-upload.outcome == 'failure')
         run: faasmctl logs -s upload
       - name: "Run MPI kernels"
         timeout-minutes: 2
