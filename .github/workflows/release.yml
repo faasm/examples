@@ -41,16 +41,6 @@ jobs:
           registry: faasm.azurecr.io
           username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
           password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
-      - name: "Build and push examples-base image"
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          file: docker/base.dockerfile
-          build-args: |
-            OPENMPI_VERSION=4.1.0
-            OPENMPI_VERSION_NOPATCH=4.1
-          context: .
-          tags: faasm.azurecr.io/examples-base:${{ env.EXAMPLES_VERSION }}
       - name: "Build and push examples-build image"
         uses: docker/build-push-action@v4
         with:

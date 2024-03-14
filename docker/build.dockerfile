@@ -1,6 +1,7 @@
 ARG CPP_VERSION
 ARG EXAMPLES_VERSION
-FROM faasm.azurecr.io/examples-base:${EXAMPLES_VERSION} as base
+# Base image is not re-built often and tag may lag behind
+FROM faasm.azurecr.io/examples-base:0.4.0_0.4.0 as base
 FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
 
 SHELL ["/bin/bash", "-c"]
