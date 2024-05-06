@@ -73,6 +73,8 @@ jobs:
         run: ./bin/inv_wrapper.sh libpng imagemagick
       - name: "Build Kernels"
         run: ./bin/inv_wrapper.sh kernels kernels --native
+      - name: "Build Elastic Kernels"
+        run: ./bin/inv_wrapper.sh kernels --elastic kernels --elastic --native
       - name: "Build LAMMPS"
         run: ./bin/inv_wrapper.sh lammps lammps --native
       - name: "Build LAMMPS with migration"
@@ -215,6 +217,12 @@ jobs:
           # The random OpenMP kernel can not be cross-compiled due to a problem
           # with the faasm_sm_reduce signature
           # faasmctl invoke kernels-omp random --cmdline '32 20'
+      - name: "Run elastic OpenMP kernels"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        timeout-minutes: 2
+        run: |
+          faasmctl invoke kernels-omp p2p --cmdline '2 10 1024 1024' --input-data "2"
+          faasmctl invoke kernels-omp sparse --cmdline '2 10 10 5' --input-data "2"
       - name: "Run PolyBench/C"
         timeout-minutes: 2
         # We deliberately enumerate all the supported functions here and
