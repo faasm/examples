@@ -43,3 +43,7 @@
 	path = examples/lammps-migration-net
 	url = https://github.com/faasm/lammps.git
 	branch = faasm-migration-net
+[submodule "examples/Kernels-elastic"]
+	path = examples/Kernels-elastic
+	url = https://github.com/faasm/Kernels
+	branch = faasm-elastic

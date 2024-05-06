@@ -9,29 +9,7 @@ from subprocess import run
 from tasks.env import EXAMPLES_DIR
 
 
-@task(default=True)
-def build(ctx, clean=False, native=False):
-    """
-    Build the different kernels functions for OpenMP and MPI
-
-    Note that LAMMPS is a self-contained binary, and different workloads are
-    executed by passing different command line arguments. As a consequence,
-    we cross-compile it and copy the binary (lmp) to lammps/main/function.wasm
-    """
-    kernels_dir = join(EXAMPLES_DIR, "Kernels")
-
-    if clean:
-        run("make clean", shell=True, check=True, cwd=kernels_dir)
-        if native:
-            rmtree(join(kernels_dir, "build", "native"))
-        else:
-            rmtree(join(kernels_dir, "build", "wasm"))
-
-    if native:
-        makedirs(join(kernels_dir, "build", "native"), exist_ok=True)
-    else:
-        makedirs(join(kernels_dir, "build", "wasm"), exist_ok=True)
-
+def build_mpi_kernels(kernels_dir, native):
     work_env = environ.copy()
     if not native:
         work_env.update(get_faasm_build_env_dict())
@@ -77,10 +55,8 @@ def build(ctx, clean=False, native=False):
                 ),
             )
 
-    # Clean MPI wasm files
-    run("make clean", shell=True, check=True, cwd=kernels_dir)
 
-    # Re-start the work environment to use the wasm32-wasi-threads target
+def build_omp_kernels(kernels_dir, native):
     work_env = environ.copy()
     if not native:
         work_env.update(get_faasm_build_env_dict(is_threads=True))
@@ -123,3 +99,38 @@ def build(ctx, clean=False, native=False):
                     "omp_{}.wasm".format(make_target),
                 ),
             )
+
+
+@task(default=True)
+def build(ctx, clean=False, native=False, elastic=False):
+    """
+    Build the different kernels functions for OpenMP and MPI
+
+    Note that LAMMPS is a self-contained binary, and different workloads are
+    executed by passing different command line arguments. As a consequence,
+    we cross-compile it and copy the binary (lmp) to lammps/main/function.wasm
+    """
+    if elastic:
+        kernels_dir = join(EXAMPLES_DIR, "Kernels-elastic")
+    else:
+        kernels_dir = join(EXAMPLES_DIR, "Kernels")
+
+    if native:
+        build_dir = join(kernels_dir, "build", "native")
+    else:
+        build_dir = join(kernels_dir, "build", "wasm")
+
+    if clean:
+        run("make clean", shell=True, check=True, cwd=kernels_dir)
+        rmtree(build_dir)
+
+    makedirs(build_dir, exist_ok=True)
+
+    # When building the elastic kernels we only need to build the OpenMP ones
+    if elastic:
+        build_omp_kernels(kernels_dir, native)
+    else:
+        build_mpi_kernels(kernels_dir, native)
+        # Clean MPI wasm files
+        run("make clean", shell=True, check=True, cwd=kernels_dir)
+        build_omp_kernels(kernels_dir, native)
