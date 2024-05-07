@@ -124,6 +124,7 @@ def build(ctx, clean=False, native=False, elastic=False):
         run("make clean", shell=True, check=True, cwd=kernels_dir)
         rmtree(build_dir)
 
+    makedirs(join(kernels_dir, "build"), exist_ok=True)
     makedirs(build_dir, exist_ok=True)
 
     # When building the elastic kernels we only need to build the OpenMP ones
