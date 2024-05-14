@@ -32,6 +32,26 @@ def copy(ctx, clean=False):
             "src": join(EXAMPLES_DIR, "LULESH", "build", "wasm", "lulesh2.0"),
             "dst": join(WASM_DIR, "lulesh.wasm"),
         },
+        {
+            "src": join(
+                EXAMPLES_DIR,
+                "Kernels-elastic",
+                "build",
+                "wasm",
+                "omp_p2p.wasm",
+            ),
+            "dst": join(WASM_DIR, "omp_elastic_p2p.wasm"),
+        },
+        {
+            "src": join(
+                EXAMPLES_DIR,
+                "Kernels-elastic",
+                "build",
+                "wasm",
+                "omp_nstream.wasm",
+            ),
+            "dst": join(WASM_DIR, "omp_elastic_nstream.wasm"),
+        },
     ]
     for wasm_file in wasm_files:
         copyfile(wasm_file["src"], wasm_file["dst"])
@@ -59,6 +79,8 @@ def upload(ctx):
     for user in listdir(WASM_DIR):
         for name in listdir(join(WASM_DIR, user)):
             wasm_path = join(WASM_DIR, user, name, "function.wasm")
+            print("Uploading {}/{} (path: {})".format(user, name, wasm_path))
+
             if exists(wasm_path):
                 if is_wavm and user in wavm_skip_users:
                     print("Skipping {}/{} for WAVM".format(user, name))
