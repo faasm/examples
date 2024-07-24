@@ -7,6 +7,7 @@ from . import ffmpeg
 from . import format_code
 from . import func
 from . import git
+from . import grass
 from . import imagemagick
 from . import kernels
 from . import lammps
@@ -24,6 +25,7 @@ ns = Collection(
     format_code,
     func,
     git,
+    grass,
     imagemagick,
     kernels,
     lammps,
