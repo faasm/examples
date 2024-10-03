@@ -18,13 +18,12 @@ def build(ctx, clean=False):
         rmtree(join(rabe_dir, "target"))
 
     # First, cross-compile the rust library to WASM
-    # TODO: rename to wasm32-wasip1
-    cargo_cmd = "cargo build --release --target=wasm32-wasi"
+    cargo_cmd = "cargo build --release --target=wasm32-wasip1"
     run(cargo_cmd, shell=True, check=True, cwd=rabe_dir)
 
     # Install it in the WASM sysroot
     build_env = get_faasm_build_env_dict()
-    src_lib = join(rabe_dir, "target", "wasm32-wasi", "release", "librabe.a")
+    src_lib = join(rabe_dir, "target", "wasm32-wasip1", "release", "librabe.a")
     dst_lib = join(build_env["FAASM_WASM_LIB_INSTALL_DIR"], "librabe.a")
     copy(src_lib, dst_lib)
 

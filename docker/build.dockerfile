@@ -24,7 +24,7 @@ RUN apt update \
 # Install rust
 RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y \
     && source ~/.cargo/env \
-    && rustup target add wasm32-wasi
+    && rustup target add wasm32-wasip1
 
 
 # Fetch the code and update submodules
