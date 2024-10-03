@@ -87,6 +87,8 @@ jobs:
         run: ./bin/inv_wrapper.sh tensorflow
       - name: "Build PolyBench/C"
         run: ./bin/inv_wrapper.sh polybench polybench --native
+      - name: "Build Rabe"
+        run: ./bin/inv_wrapper.sh rabe
       - name: "Build functions used in the tests"
         run: ./bin/inv_wrapper.sh func.tests
       - name: "Get CPP/Python commits"
@@ -280,6 +282,9 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
+      - name: "Run Rabe test"
+        timeout-minutes: 1
+        run: faasmctl invoke rabe test
       - name: "Print logs in case of failure"
         if: failure()
         run: faasmctl logs -s worker

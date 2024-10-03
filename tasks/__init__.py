@@ -13,6 +13,7 @@ from . import lammps
 from . import libpng
 from . import lulesh
 from . import polybench
+from . import rabe
 from . import tensorflow
 from . import wasm
 
@@ -30,6 +31,7 @@ ns = Collection(
     libpng,
     lulesh,
     polybench,
+    rabe,
     tensorflow,
     wasm,
 )

@@ -19,10 +19,10 @@ def cli(ctx, clean=False):
     """
     service = "build"
 
-    if clean:
-        # Clean existing build
+    if not exists(DEV_FAASM_LOCAL) or clean:
         if exists(DEV_FAASM_LOCAL):
             rmtree(DEV_FAASM_LOCAL)
+
         makedirs(DEV_FAASM_LOCAL)
 
         # Populate the local mounts with the existing content
