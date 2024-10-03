@@ -124,7 +124,7 @@ jobs:
         shell: bash
     env:
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.22.0
+      FAASM_VERSION: 0.27.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -282,9 +282,12 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
-      - name: "Run Rabe test"
-        timeout-minutes: 1
-        run: faasmctl invoke rabe test
+          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
+          # when we do
+          #       - name: "Run Rabe test"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 1
+          #         run: faasmctl invoke rabe test
       - name: "Print logs in case of failure"
         if: failure()
         run: faasmctl logs -s worker
