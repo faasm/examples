@@ -67,12 +67,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: "Build Rabe"
+      - name: "Build Rabe and JWT"
         run: |
           export PATH=$PATH:/root/.cargo/env
           rustup default stable
           rustup target add wasm32-wasip1
-          ./bin/inv_wrapper.sh rabe
+          ./bin/inv_wrapper.sh rabe jwt
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
       - name: "Build ImageMagick"
@@ -292,6 +292,12 @@ jobs:
           #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
           #         timeout-minutes: 1
           #         run: faasmctl invoke rabe test
+          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
+          # when we do
+          #       - name: "Run Rabe test"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 1
+          #         run: faasmctl invoke jwt test
       - name: "Print logs in case of failure"
         if: failure()
         run: faasmctl logs -s worker
