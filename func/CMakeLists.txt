@@ -32,6 +32,7 @@ function(faasm_example_func func_name file_name)
 endfunction(faasm_example_func)
 
 add_subdirectory(ffmpeg)
+add_subdirectory(jwt)
 add_subdirectory(lammps)
 add_subdirectory(mpi)
 add_subdirectory(rabe)
