@@ -23,7 +23,9 @@ def build(ctx, clean=False):
 
     # Install it in the WASM sysroot
     build_env = get_faasm_build_env_dict()
-    src_lib = join(jwt_dir, "target", "wasm32-wasip1", "release", "libtless_jwt.a")
+    src_lib = join(
+        jwt_dir, "target", "wasm32-wasip1", "release", "libtless_jwt.a"
+    )
     dst_lib = join(build_env["FAASM_WASM_LIB_INSTALL_DIR"], "libtless-jwt.a")
     copy(src_lib, dst_lib)
 
@@ -54,7 +56,9 @@ def build(ctx, clean=False):
 
     # Install the library in the WASM sysroot
     src_lib = join(build_dir, "libtless-jwt-cpp.a")
-    dst_lib = join(build_env["FAASM_WASM_LIB_INSTALL_DIR"], "libtless-jwt-cpp.a")
+    dst_lib = join(
+        build_env["FAASM_WASM_LIB_INSTALL_DIR"], "libtless-jwt-cpp.a"
+    )
     copy(src_lib, dst_lib)
 
     # Install the header in the WASM sysroot too
