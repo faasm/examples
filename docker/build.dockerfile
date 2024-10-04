@@ -1,8 +1,8 @@
 ARG CPP_VERSION
 ARG EXAMPLES_VERSION
 # Base image is not re-built often and tag may lag behind
-FROM faasm.azurecr.io/examples-base:0.4.0_0.4.0 as base
-FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION}
+FROM faasm.azurecr.io/examples-base:0.6.0_0.4.0 AS base
+FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION:-dead}
 
 SHELL ["/bin/bash", "-c"]
 ENV IN_DOCKER="on"
@@ -20,6 +20,12 @@ RUN cd /tmp/openmpi-4.1.0 \
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update \
     && apt install -y libomp-17-dev
+
+# Install rust
+RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y \
+    && source ~/.cargo/env \
+    && rustup target add wasm32-wasip1
+
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION
@@ -40,9 +46,11 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/polybench \
+    && git submodule update --init -f examples/rabe \
     && git submodule update --init -f examples/tensorflow
 
 # Build the examples and demo functions
+ENV PATH=${PATH}:/root/.cargo/bin
 RUN cd /code/examples \
     && ./bin/create_venv.sh \
     && source venv/bin/activate \
@@ -63,14 +71,17 @@ RUN cd /code/examples \
     && inv lammps --migration-net \
     && inv lulesh \
     && inv polybench \
+    && inv rabe \
     && inv tensorflow \
     # These demo functions link with the cross-compiled static libraries
     && inv func ffmpeg check \
     && inv func lammps chain \
     && inv func mpi migrate \
+    && inv func rabe test \
     && inv func tf check
 
 # Prepare bashrc
 WORKDIR /code/examples
 RUN echo ". /code/examples/bin/workon.sh" >> ~/.bashrc
+RUN echo ". $HOME/.cargo/env" >> ~/.bashrc
 CMD ["/bin/bash", "-l"]

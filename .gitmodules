@@ -47,3 +47,7 @@
 	path = examples/Kernels-elastic
 	url = https://github.com/faasm/Kernels
 	branch = faasm-elastic
+[submodule "examples/rabe"]
+	path = examples/rabe
+	url = https://github.com/faasm/rabe.git
+	branch = faasm

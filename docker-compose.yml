@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   build:
     image: faasm.azurecr.io/examples-build:${EXAMPLES_BUILD_VERSION}
