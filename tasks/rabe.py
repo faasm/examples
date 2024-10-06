@@ -60,6 +60,11 @@ def build(ctx, clean=False):
     # Install the header in the WASM sysroot too
     src_header = join(rabe_cpp_dir, "rabe_bindings.hpp")
     dst_header = join(
-        build_env["FAASM_WASM_HEADER_INSTALL_DIR"], "rabe_bindings.hpp"
+        build_env["FAASM_WASM_HEADER_INSTALL_DIR"], "tless_abe.h"
+    )
+    copy(src_header, dst_header)
+    src_header = join(rabe_cpp_dir, "tless_aes.h")
+    dst_header = join(
+        build_env["FAASM_WASM_HEADER_INSTALL_DIR"], "tless_aes.h"
     )
     copy(src_header, dst_header)
