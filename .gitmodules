@@ -51,3 +51,6 @@
 	path = examples/rabe
 	url = https://github.com/faasm/rabe.git
 	branch = faasm
+[submodule "examples/tless-jwt"]
+	path = examples/tless-jwt
+	url = https://github.com/faasm/tless-jwt.git

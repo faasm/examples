@@ -8,6 +8,7 @@ from . import format_code
 from . import func
 from . import git
 from . import imagemagick
+from . import jwt
 from . import kernels
 from . import lammps
 from . import libpng
@@ -26,6 +27,7 @@ ns = Collection(
     func,
     git,
     imagemagick,
+    jwt,
     kernels,
     lammps,
     libpng,
