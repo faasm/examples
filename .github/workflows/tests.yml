@@ -187,7 +187,7 @@ jobs:
       - name: "Run OpenCV check"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
-        run: faasmctl invoke opencv check
+        run: faasmctl invoke opencv check --cmdline "faasm://opencv/bus_photo.bmp faasm://opencv/out.bmp"
       - name: "Run MPI kernels"
         timeout-minutes: 2
         run: |
