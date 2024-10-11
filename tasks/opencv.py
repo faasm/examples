@@ -1,12 +1,10 @@
 from faasmtools.build import CMAKE_TOOLCHAIN_FILE, get_faasm_build_env_dict
-from faasmtools.compile_util import wasm_copy_upload
 from faasmtools.env import LLVM_NATIVE_VERSION
-from tasks.env import DEV_FAASM_LOCAL, EXAMPLES_DIR, in_docker
-from tasks.util import run_docker_build_cmd
+from tasks.env import EXAMPLES_DIR
 from invoke import task
-from os import environ, makedirs
-from os.path import exists, join
-from shutil import copytree, rmtree
+from os import environ, listdir, makedirs
+from os.path import exists, isdir, join
+from shutil import copy, rmtree
 from subprocess import run
 
 
@@ -14,8 +12,7 @@ from subprocess import run
 def build(
     ctx, clean=False, native=False, migration=False, migration_net=False
 ):
-    """
-    """
+    """ """
     opencv_dir = join(EXAMPLES_DIR, "opencv")
     build_dir = join(opencv_dir, "build", "wasm")
 
@@ -98,8 +95,8 @@ def build(
 
         # Manually install headers and libraries
         header_dirs = [
-            "opencv/include",
-            "opencv/build/wasm",
+            "include",
+            "build/wasm",
             "modules/core/include",
             "modules/calib3d/include",
             "modules/features2d/include",
@@ -109,6 +106,27 @@ def build(
             "modules/video/include",
             "modules/imgcodecs/include",
         ]
+        dst_header_dir = join(
+            work_env["FAASM_WASM_HEADER_INSTALL_DIR"], "opencv2"
+        )
+        makedirs(dst_header_dir, exist_ok=True)
         for header_dir in header_dirs:
-            copytree(join(opencv_dir, header_dir), work_env["FAASM_WASM_HEADER_INSTALL_DIR"])
-        copytree(join(build_dir, "lib"), work_env["FAASM_WASM_LIB_INSTALL_DIR"])
+            for header_file in listdir(
+                join(opencv_dir, header_dir, "opencv2")
+            ):
+                src_path = join(opencv_dir, header_dir, "opencv2", header_file)
+                dst_path = join(dst_header_dir, header_file)
+                if isdir(src_path):
+                    run(
+                        f"cp -r {src_path} {dst_header_dir}",
+                        shell=True,
+                        check=True,
+                    )
+                else:
+                    copy(src_path, dst_path)
+
+        for lib_name in listdir(join(build_dir, "lib")):
+            copy(
+                join(build_dir, "lib", lib_name),
+                join(work_env["FAASM_WASM_LIB_INSTALL_DIR"], lib_name),
+            )
