@@ -73,6 +73,8 @@ jobs:
           rustup default stable
           rustup target add wasm32-wasip1
           ./bin/inv_wrapper.sh rabe jwt
+      - name: "Build OpenCV"
+        run: ./bin/inv_wrapper.sh opencv
       - name: "Build FFmpeg"
         run: ./bin/inv_wrapper.sh ffmpeg
       - name: "Build ImageMagick"
@@ -182,6 +184,10 @@ jobs:
       - name: "Print logs if wasm-upload fails"
         if: failure() && (steps.wasm-upload.outcome == 'failure')
         run: faasmctl logs -s upload
+      - name: "Run OpenCV check"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        timeout-minutes: 2
+        run: faasmctl invoke opencv check
       - name: "Run MPI kernels"
         timeout-minutes: 2
         run: |

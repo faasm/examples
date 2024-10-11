@@ -13,6 +13,7 @@ from . import kernels
 from . import lammps
 from . import libpng
 from . import lulesh
+from . import opencv
 from . import polybench
 from . import rabe
 from . import tensorflow
@@ -32,6 +33,7 @@ ns = Collection(
     lammps,
     libpng,
     lulesh,
+    opencv,
     polybench,
     rabe,
     tensorflow,
