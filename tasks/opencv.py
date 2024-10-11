@@ -37,7 +37,7 @@ def build(
     else:
         cmake_cmd += [
             "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE),
-            "-DBUILD_LIST=core,imgcodecs,imgproc",
+            "-DBUILD_LIST=core,imgcodecs,imgproc,ml",
             "-DBUILD_SHARED_LIBS=OFF",
             "-DENABLE_PIC=FALSE",
             "-DCMAKE_BUILD_TYPE=Release",
@@ -101,10 +101,11 @@ def build(
             "modules/calib3d/include",
             "modules/features2d/include",
             "modules/flann/include",
+            "modules/imgcodecs/include",
             "modules/imgproc/include",
+            "modules/ml/include",
             "modules/photo/include",
             "modules/video/include",
-            "modules/imgcodecs/include",
         ]
         dst_header_dir = join(
             work_env["FAASM_WASM_HEADER_INSTALL_DIR"], "opencv2"
