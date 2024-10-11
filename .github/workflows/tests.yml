@@ -103,6 +103,11 @@ jobs:
         run: ./bin/inv_wrapper.sh tensorflow
       - name: "Build PolyBench/C"
         run: ./bin/inv_wrapper.sh polybench polybench --native
+      - name: "Manually re-compile libz (the sysroot has a version with atomics)"
+        run: |
+          git submodule update --init
+          ./bin/inv_wrapper.sh zlib
+        working-directory: ./cpp
       - name: "Build functions used in the tests"
         run: ./bin/inv_wrapper.sh func.tests
       - name: "Get CPP/Python commits"

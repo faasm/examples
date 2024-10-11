@@ -14,7 +14,10 @@ def build(
 ):
     """ """
     opencv_dir = join(EXAMPLES_DIR, "opencv")
-    build_dir = join(opencv_dir, "build", "wasm")
+    if native:
+        build_dir = join(opencv_dir, "build", "native")
+    else:
+        build_dir = join(opencv_dir, "build", "wasm")
 
     if clean and exists(build_dir):
         rmtree(build_dir)
@@ -37,62 +40,70 @@ def build(
     else:
         cmake_cmd += [
             "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE),
-            "-DBUILD_LIST=core,imgcodecs,imgproc,ml",
-            "-DBUILD_SHARED_LIBS=OFF",
-            "-DENABLE_PIC=FALSE",
-            "-DCMAKE_BUILD_TYPE=Release",
-            "-DCPU_BASELINE=''",
-            "-DCPU_DISPATCH=''",
-            "-DCV_TRACE=OFF",
-            "-DWITH_1394=OFF",
-            "-DWITH_ADE=OFF",
-            "-DWITH_VTK=OFF",
-            "-DWITH_EIGEN=OFF",
-            "-DWITH_FFMPEG=OFF",
-            "-DWITH_GSTREAMER=OFF",
-            "-DWITH_GTK=OFF",
-            "-DWITH_GTK_2_X=OFF",
-            "-DWITH_IPP=OFF",
-            "-DWITH_JASPER=OFF",
-            "-DWITH_JPEG=OFF",
-            "-DWITH_WEBP=OFF",
-            "-DWITH_OPENJPEG=OFF",
-            "-DWITH_OPENEXR=OFF",
-            "-DWITH_OPENGL=OFF",
-            "-DWITH_OPENVX=OFF",
-            "-DWITH_OPENNI=OFF",
-            "-DWITH_OPENNI2=OFF",
-            "-DWITH_PNG=OFF",
-            "-DWITH_PTHREADS=OFF",
-            "-DWITH_TBB=OFF",
-            "-DWITH_TIFF=OFF",
-            "-DWITH_V4L=OFF",
-            "-DWITH_OPENCL=OFF",
-            "-DWITH_OPENCL_SVM=OFF",
-            "-DWITH_OPENCLAMDFFT=OFF",
-            "-DWITH_OPENCLAMDBLAS=OFF",
-            "-DWITH_GPHOTO2=OFF",
-            "-DWITH_LAPACK=OFF",
-            "-DWITH_ITT=OFF",
-            "-DWITH_QUIRC=OFF",
-            # Enable SIMD support
-            "-DCV_ENABLE_INTRINSICS=ON",
-            # Disable threading: problems with SGX,
-            "-DOPENCV_DISABLE_THREAD_SUPPORT=ON",
-            "-DWITH_IPP=OFF",
-            "-DWITH_TBB=OFF",
-            "-DWITH_PTHREADS_PF=OFF",
-            "-DENABLE_PTHREADS=OFF",
         ]
-        cmake_cmd += [opencv_dir]
-        cmake_cmd = " ".join(cmake_cmd)
 
-        work_env = environ.copy()
+    # Common flags. Need to be very restrictive for WASM, but we do the same
+    # for native
+    cmake_cmd += [
+        "-DBUILD_LIST=core,imgcodecs,imgproc,ml",
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-DENABLE_PIC=FALSE",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCPU_BASELINE=''",
+        "-DCPU_DISPATCH=''",
+        "-DCV_TRACE=OFF",
+        "-DWITH_1394=OFF",
+        "-DWITH_ADE=OFF",
+        "-DWITH_VTK=OFF",
+        "-DWITH_EIGEN=OFF",
+        "-DWITH_FFMPEG=OFF",
+        "-DWITH_GSTREAMER=OFF",
+        "-DWITH_GTK=OFF",
+        "-DWITH_GTK_2_X=OFF",
+        "-DWITH_IPP=OFF",
+        "-DWITH_JASPER=OFF",
+        "-DWITH_JPEG=OFF",
+        "-DWITH_WEBP=OFF",
+        "-DWITH_OPENJPEG=OFF",
+        "-DWITH_OPENEXR=OFF",
+        "-DWITH_OPENGL=OFF",
+        "-DWITH_OPENVX=OFF",
+        "-DWITH_OPENNI=OFF",
+        "-DWITH_OPENNI2=OFF",
+        "-DWITH_PNG=OFF",
+        "-DWITH_PTHREADS=OFF",
+        "-DWITH_TBB=OFF",
+        "-DWITH_TIFF=OFF",
+        "-DWITH_V4L=OFF",
+        "-DWITH_OPENCL=OFF",
+        "-DWITH_OPENCL_SVM=OFF",
+        "-DWITH_OPENCLAMDFFT=OFF",
+        "-DWITH_OPENCLAMDBLAS=OFF",
+        "-DWITH_GPHOTO2=OFF",
+        "-DWITH_LAPACK=OFF",
+        "-DWITH_ITT=OFF",
+        "-DWITH_QUIRC=OFF",
+        # Enable SIMD support
+        "-DCV_ENABLE_INTRINSICS=ON",
+        # Disable threading: problems with SGX,
+        "-DOPENCV_DISABLE_THREAD_SUPPORT=ON",
+        "-DWITH_IPP=OFF",
+        "-DWITH_TBB=OFF",
+        "-DWITH_PTHREADS_PF=OFF",
+        "-DENABLE_PTHREADS=OFF",
+    ]
+    cmake_cmd += [opencv_dir]
+    cmake_cmd = " ".join(cmake_cmd)
+
+    work_env = environ.copy()
+    if not native:
         work_env.update(get_faasm_build_env_dict())
 
-        run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
-        run("ninja", shell=True, check=True, cwd=build_dir)
+    print(cmake_cmd)
+    run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
+    run("ninja", shell=True, check=True, cwd=build_dir)
 
+    if not native:
         # Manually install headers and libraries
         header_dirs = [
             "include",

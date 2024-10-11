@@ -28,7 +28,7 @@ void loadImages(const std::string& folder, std::vector<cv::Mat>& data, std::vect
     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
         if (entry.is_regular_file()) {
 
-            std::cout << "Loading image: " << entry.path().string() << std::endl;
+            std::cout << " - loading image: " << entry.path().string() << " (" << label << ")" << std::endl;
             cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_GRAYSCALE);
             if (!img.empty()) {
                 cv::resize(img, img, cv::Size(64, 64));
@@ -48,16 +48,21 @@ int main(int argc, char** argv) {
     }
 
     // Load images
+    std::cout << "Beginning to load images..." << std::endl;
     std::vector<cv::Mat> images;
     std::vector<int> labels;
     loadImages(argv[1], images, labels);
+    std::cout << "Images loaded!" << std::endl;
 
     // Convert data to a single matrix
+    std::cout << "Converting data..." << std::endl;
     cv::Mat data;
     cv::vconcat(images, data);
     data.convertTo(data, CV_32F);
+    std::cout << "Data converted!" << std::endl;
 
     // Perform PCA with 10 principal components
+    std::cout << "Performing PCA analysis..." << std::endl;
     cv::PCA pca(data, cv::Mat(), cv::PCA::DATA_AS_ROW, 10);
     cv::Mat pcaResult;
     pca.project(data, pcaResult);
