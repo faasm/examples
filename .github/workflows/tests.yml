@@ -28,12 +28,12 @@ jobs:
 
   # Work-out whether we need to re-build the examples. We need to re-build the
   # examples if either _any_ fo the examples has changed, or the WASM cache
-  # has expired
+  # has expired, or the ./funcs folder have changed
   needs-build:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
-      needs-wasm: ${{ steps.wasm-cache.outputs.cache-hit != 'true' }}
+      needs-wasm: ${{ (steps.wasm-cache.outputs.cache-hit != 'true') || (steps.filter.outputs.funcs-changed == 'true') }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -52,6 +52,14 @@ jobs:
           path: ./wasm
           key: wasm-${{ steps.submodule-commit.outputs.digest }}
           lookup-only: true
+      # Check if any of the submodules have been modified
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            funcs-changed:
+              - 'func/**'
+
 
   build-examples:
     needs: needs-build
