@@ -54,3 +54,6 @@
 [submodule "examples/tless-jwt"]
 	path = examples/tless-jwt
 	url = https://github.com/faasm/tless-jwt.git
+[submodule "examples/opencv"]
+	path = examples/opencv
+	url = https://github.com/opencv/opencv.git

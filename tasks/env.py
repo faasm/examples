@@ -43,6 +43,22 @@ EXAMPLES_DATA_FILES = [
         join(EXAMPLES_DATA_HOST_DIR, "grace_hopper.bmp"),
         join(EXAMPLES_DATA_BASE_DIR, "tflite", "grace_hopper.bmp"),
     ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "bus_photo.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "opencv", "bus_photo.bmp"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "tchaikovsky.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "tchaikovsky.bmp"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "wagner.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "wagner.bmp"),
+    ],
+    [
+        join(EXAMPLES_DATA_HOST_DIR, "beethoven.bmp"),
+        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "beethoven.bmp"),
+    ],
 ]
 
 
