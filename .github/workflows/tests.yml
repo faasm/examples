@@ -115,7 +115,10 @@ jobs:
         run: |
           apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          submodule_digest=$(git submodule status | awk '{ print $1; }' | md5sum | awk '{ print $1}')
+          func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
+          echo "${submodule_digest}-${func_digest}"
+          echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
           # Also move to a different path to restore from
           mv /usr/local/faasm/wasm ./wasm
       # If we are here we _always_ want to overwrite the cache
@@ -183,7 +186,11 @@ jobs:
         run: |
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          submodule_digest=$(git submodule status | awk '{ print $1; }' | md5sum | awk '{ print $1}')
+          func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
+          echo "${submodule_digest}-${func_digest}"
+          echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+          # echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: "Get WASM cache"
         uses: actions/cache/restore@v4
         id: cpp-wasm-cache
