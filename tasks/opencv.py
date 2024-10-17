@@ -103,42 +103,51 @@ def build(
     run(cmake_cmd, shell=True, check=True, cwd=build_dir, env=work_env)
     run("ninja", shell=True, check=True, cwd=build_dir)
 
+    # Manually install headers and libraries
+
     if not native:
-        # Manually install headers and libraries
-        header_dirs = [
-            "include",
-            "build/wasm",
-            "modules/core/include",
-            "modules/calib3d/include",
-            "modules/features2d/include",
-            "modules/flann/include",
-            "modules/imgcodecs/include",
-            "modules/imgproc/include",
-            "modules/ml/include",
-            "modules/photo/include",
-            "modules/video/include",
-        ]
         dst_header_dir = join(
             work_env["FAASM_WASM_HEADER_INSTALL_DIR"], "opencv2"
         )
-        makedirs(dst_header_dir, exist_ok=True)
-        for header_dir in header_dirs:
-            for header_file in listdir(
-                join(opencv_dir, header_dir, "opencv2")
-            ):
-                src_path = join(opencv_dir, header_dir, "opencv2", header_file)
-                dst_path = join(dst_header_dir, header_file)
-                if isdir(src_path):
-                    run(
-                        f"cp -r {src_path} {dst_header_dir}",
-                        shell=True,
-                        check=True,
-                    )
-                else:
-                    copy(src_path, dst_path)
+        dst_lib_dir = work_env["FAASM_WASM_LIB_INSTALL_DIR"]
+    else:
+        dst_header_dir = "/usr/include/opencv2"
+        dst_header_dir = "/usr/local/lib/opencv2"
 
-        for lib_name in listdir(join(build_dir, "lib")):
-            copy(
-                join(build_dir, "lib", lib_name),
-                join(work_env["FAASM_WASM_LIB_INSTALL_DIR"], lib_name),
-            )
+    makedirs(dst_header_dir, exist_ok=True)
+    makedirs(dst_lib_dir, exist_ok=True)
+
+    header_dirs = [
+        "include",
+        "build/wasm",
+        "modules/core/include",
+        "modules/calib3d/include",
+        "modules/features2d/include",
+        "modules/flann/include",
+        "modules/imgcodecs/include",
+        "modules/imgproc/include",
+        "modules/ml/include",
+        "modules/photo/include",
+        "modules/video/include",
+    ]
+
+    for header_dir in header_dirs:
+        for header_file in listdir(
+            join(opencv_dir, header_dir, "opencv2")
+        ):
+            src_path = join(opencv_dir, header_dir, "opencv2", header_file)
+            dst_path = join(dst_header_dir, header_file)
+            if isdir(src_path):
+                run(
+                    f"cp -r {src_path} {dst_header_dir}",
+                    shell=True,
+                    check=True,
+                )
+            else:
+                copy(src_path, dst_path)
+
+    for lib_name in listdir(join(build_dir, "lib")):
+        copy(
+            join(build_dir, "lib", lib_name),
+            join(dst_lib_dir, lib_name),
+        )
