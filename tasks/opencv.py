@@ -112,7 +112,7 @@ def build(
         dst_lib_dir = work_env["FAASM_WASM_LIB_INSTALL_DIR"]
     else:
         dst_header_dir = "/usr/include/opencv2"
-        dst_header_dir = "/usr/local/lib/opencv2"
+        dst_lib_dir = "/usr/local/lib/opencv2"
 
     makedirs(dst_header_dir, exist_ok=True)
     makedirs(dst_lib_dir, exist_ok=True)
