@@ -132,9 +132,7 @@ def build(
     ]
 
     for header_dir in header_dirs:
-        for header_file in listdir(
-            join(opencv_dir, header_dir, "opencv2")
-        ):
+        for header_file in listdir(join(opencv_dir, header_dir, "opencv2")):
             src_path = join(opencv_dir, header_dir, "opencv2", header_file)
             dst_path = join(dst_header_dir, header_file)
             if isdir(src_path):
