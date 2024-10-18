@@ -20,7 +20,7 @@ def build(ctx, clean=False, native=False):
     # First, cross-compile the rust library to WASM
     cargo_cmd = "cargo build --release"
     if not native:
-        cargo_cmd += "--target=wasm32-wasip1"
+        cargo_cmd += " --target=wasm32-wasip1"
 
     run(cargo_cmd, shell=True, check=True, cwd=rabe_dir)
 
