@@ -12,7 +12,9 @@ from subprocess import run
 def build(
     ctx, clean=False, native=False, migration=False, migration_net=False
 ):
-    """ """
+    """
+    Build (and cross-compile) the OpenCV image processing library
+    """
     opencv_dir = join(EXAMPLES_DIR, "opencv")
     if native:
         build_dir = join(opencv_dir, "build", "native")
