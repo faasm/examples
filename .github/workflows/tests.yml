@@ -141,7 +141,7 @@ jobs:
         shell: bash
     env:
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.27.0
+      FAASM_VERSION: 0.28.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
