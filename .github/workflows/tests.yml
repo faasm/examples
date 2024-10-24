@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
-      needs-wasm: ${{ (steps.wasm-cache.outputs.cache-hit != 'true') || (steps.filter.outputs.funcs-changed == 'true') }}
+      needs-wasm: ${{ steps.wasm-cache.outputs.cache-hit != 'true' }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -45,21 +45,16 @@ jobs:
         run: |
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          submodule_digest=$(git submodule status | awk '{ print $1; }' | md5sum | awk '{ print $1}')
+          func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
+          echo "${submodule_digest}-${func_digest}"
+          echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
       - uses: actions/cache/restore@v4
         id: wasm-cache
         with:
           path: ./wasm
           key: wasm-${{ steps.submodule-commit.outputs.digest }}
           lookup-only: true
-      # Check if any of the submodules have been modified
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            funcs-changed:
-              - 'func/**'
-
 
   build-examples:
     needs: needs-build
@@ -190,7 +185,6 @@ jobs:
           func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
           echo "${submodule_digest}-${func_digest}"
           echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
-          # echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: "Get WASM cache"
         uses: actions/cache/restore@v4
         id: cpp-wasm-cache
