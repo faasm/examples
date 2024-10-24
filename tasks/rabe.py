@@ -86,7 +86,9 @@ def build(ctx, clean=False, native=False):
     # Install the headers
     src_header = join(rabe_cpp_dir, "rabe_bindings.hpp")
     dst_header = join(header_dir, "tless_abe.h")
+    print(f"Installing {src_header} to {dst_header}")
     copy(src_header, dst_header)
     src_header = join(rabe_cpp_dir, "tless_aes.h")
     dst_header = join(header_dir, "tless_aes.h")
     copy(src_header, dst_header)
+    print(f"Installing {src_header} to {dst_header}")
