@@ -328,6 +328,9 @@ jobs:
           #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
           #         timeout-minutes: 1
           #         run: faasmctl invoke jwt test
-      - name: "Print logs in case of failure"
+      - name: "Print upload logs in case of failure"
+        if: failure()
+        run: faasmctl logs -s upload
+      - name: "Print worker logs in case of failure"
         if: failure()
         run: faasmctl logs -s worker
