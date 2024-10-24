@@ -37,7 +37,9 @@ def build(ctx, clean=False, native=False):
             makedirs(header_dir)
 
     if not native:
-        src_lib = join(rabe_dir, "target", "wasm32-wasip1", "release", "librabe.a")
+        src_lib = join(
+            rabe_dir, "target", "wasm32-wasip1", "release", "librabe.a"
+        )
     else:
         src_lib = join(rabe_dir, "target", "release", "librabe.a")
 
@@ -61,7 +63,11 @@ def build(ctx, clean=False, native=False):
         "cmake",
         "-GNinja",
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE) if not native else "",
+        (
+            "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE)
+            if not native
+            else ""
+        ),
         rabe_cpp_dir,
     ]
     cmake_cmd = " ".join(cmake_cmd)
