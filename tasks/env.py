@@ -25,39 +25,39 @@ EXAMPLES_DATA_HOST_DIR = join(PROJ_ROOT, "data")
 EXAMPLES_DATA_FILES = [
     [
         join(EXAMPLES_DATA_HOST_DIR, "faasm_logo.png"),
-        join(EXAMPLES_DATA_BASE_DIR, "im", "sample_image.png"),
+        join("im", "sample_image.png"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "in.controller.wall"),
-        join(EXAMPLES_DATA_BASE_DIR, "lammps-data", "in.controller.wall"),
+        join("lammps-data", "in.controller.wall"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "ffmpeg_video.mp4"),
-        join(EXAMPLES_DATA_BASE_DIR, "ffmpeg", "sample_video.mp4"),
+        join("ffmpeg", "sample_video.mp4"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "sample_model.tflite"),
-        join(EXAMPLES_DATA_BASE_DIR, "tflite", "sample_model.tflite"),
+        join("tflite", "sample_model.tflite"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "grace_hopper.bmp"),
-        join(EXAMPLES_DATA_BASE_DIR, "tflite", "grace_hopper.bmp"),
+        join("tflite", "grace_hopper.bmp"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "bus_photo.bmp"),
-        join(EXAMPLES_DATA_BASE_DIR, "opencv", "bus_photo.bmp"),
+        join("opencv", "bus_photo.bmp"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "tchaikovsky.bmp"),
-        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "tchaikovsky.bmp"),
+        join("opencv", "composers", "tchaikovsky.bmp"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "wagner.bmp"),
-        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "wagner.bmp"),
+        join("opencv", "composers", "wagner.bmp"),
     ],
     [
         join(EXAMPLES_DATA_HOST_DIR, "beethoven.bmp"),
-        join(EXAMPLES_DATA_BASE_DIR, "opencv", "composers", "beethoven.bmp"),
+        join("opencv", "composers", "beethoven.bmp"),
     ],
 ]
 

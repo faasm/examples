@@ -198,6 +198,8 @@ jobs:
       - name: "Print logs if wasm-upload fails"
         if: failure() && (steps.wasm-upload.outcome == 'failure')
         run: faasmctl logs -s upload
+      - name: "Upload all data files"
+        run: ./bin/inv_wrapper.sh data.upload
       - name: "Run OpenCV check"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
