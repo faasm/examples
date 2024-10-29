@@ -1,11 +1,11 @@
-#include <rabe_bindings.hpp>
+#include <tless_abe.h>
 #include <iostream>
 #include <string>
 
 int main()
 {
     // Create temporary encryption context for this test
-    auto& ctx = rabe::CpAbeContextWrapper::get(rabe::ContextFetchMode::Create);
+    auto& ctx = tless::abe::CpAbeContextWrapper::get(tless::abe::ContextFetchMode::Create);
 
     // Prepare encryption
     std::string plainText = "dance like no one's watching, encrypt like everyone is!";

@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     outputs:
-      needs-wasm: ${{ (steps.wasm-cache.outputs.cache-hit != 'true') || (steps.filter.outputs.funcs-changed == 'true') }}
+      needs-wasm: ${{ steps.wasm-cache.outputs.cache-hit != 'true' }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -45,21 +45,16 @@ jobs:
         run: |
           sudo apt install -y zstd
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          submodule_digest=$(git submodule status | awk '{ print $1; }' | md5sum | awk '{ print $1}')
+          func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
+          echo "${submodule_digest}-${func_digest}"
+          echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
       - uses: actions/cache/restore@v4
         id: wasm-cache
         with:
           path: ./wasm
           key: wasm-${{ steps.submodule-commit.outputs.digest }}
           lookup-only: true
-      # Check if any of the submodules have been modified
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            funcs-changed:
-              - 'func/**'
-
 
   build-examples:
     needs: needs-build
@@ -146,7 +141,7 @@ jobs:
         shell: bash
     env:
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.27.0
+      FAASM_VERSION: 0.29.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -190,7 +185,6 @@ jobs:
           func_digest=$(find 'func' -type f -exec md5sum {} + | sort | md5sum | awk '{ print $1 }')
           echo "${submodule_digest}-${func_digest}"
           echo "digest=$(echo -n '${submodule_digest}-${func_digest}' | md5sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
-          # echo "digest=$(git submodule status | awk '{ print $1; }' | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: "Get WASM cache"
         uses: actions/cache/restore@v4
         id: cpp-wasm-cache
@@ -204,11 +198,16 @@ jobs:
       - name: "Print logs if wasm-upload fails"
         if: failure() && (steps.wasm-upload.outcome == 'failure')
         run: faasmctl logs -s upload
+      - name: "Upload all data files"
+        run: ./bin/inv_wrapper.sh data.upload
+          # FIXME: there is currently a bug in Faasm when we open a directory
+          # that has been uploaded as a shared file. See:
+          # https://github.com/faasm/faasm/issues/893
+          #       - name: "Run OpenCV k-NN Inference"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 2
+          #         run: faasmctl invoke opencv pca --cmdline "faasm://opencv/composers"
       - name: "Run OpenCV check"
-        if: "contains(env.FAASM_WASM_VM, 'wamr')"
-        timeout-minutes: 2
-        run: faasmctl invoke opencv pca --cmdline "faasm://opencv/composers"
-      - name: "Run OpenCV k-NN Inference"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
         run: faasmctl invoke opencv check --cmdline "faasm://opencv/bus_photo.bmp faasm://opencv/out.bmp"
@@ -316,18 +315,17 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
-          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
-          # when we do
-          #       - name: "Run Rabe test"
-          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
-          #         timeout-minutes: 1
-          #         run: faasmctl invoke rabe test
-          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
-          # when we do
-          #       - name: "Run Rabe test"
+      - name: "Run Rabe test"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        timeout-minutes: 1
+        run: faasmctl invoke rabe test
+          #       - name: "Run JWT test"
           #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
           #         timeout-minutes: 1
           #         run: faasmctl invoke jwt test
-      - name: "Print logs in case of failure"
+      - name: "Print upload logs in case of failure"
+        if: failure()
+        run: faasmctl logs -s upload
+      - name: "Print worker logs in case of failure"
         if: failure()
         run: faasmctl logs -s worker
