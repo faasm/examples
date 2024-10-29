@@ -203,12 +203,18 @@ jobs:
       - name: "Try building locally and running with DEBUG DELETE ME"
         run: |
           faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh dev.tools --build Debug"
+          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared"
+          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared/opencv"
+          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared/opencv/composers"
           faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh run opencv pca --cmdline 'faasm://opencv/composers'"
+          # FIXME: there is currently a bug in Faasm when we open a directory
+          # that has been uploaded as a shared file. See:
+          # https://github.com/faasm/faasm/issues/893
+          #       - name: "Run OpenCV k-NN Inference"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 2
+          #         run: faasmctl invoke opencv pca --cmdline "faasm://opencv/composers"
       - name: "Run OpenCV check"
-        if: "contains(env.FAASM_WASM_VM, 'wamr')"
-        timeout-minutes: 2
-        run: faasmctl invoke opencv pca --cmdline "faasm://opencv/composers"
-      - name: "Run OpenCV k-NN Inference"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
         run: faasmctl invoke opencv check --cmdline "faasm://opencv/bus_photo.bmp faasm://opencv/out.bmp"
@@ -316,18 +322,14 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
-          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
-          # when we do
-          #       - name: "Run Rabe test"
-          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
-          #         timeout-minutes: 1
-          #         run: faasmctl invoke rabe test
-          # TODO(faasm-bump): this is working, but we need to cut a new faasm release, uncomment
-          # when we do
-          #       - name: "Run Rabe test"
-          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
-          #         timeout-minutes: 1
-          #         run: faasmctl invoke jwt test
+      - name: "Run Rabe test"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        timeout-minutes: 1
+        run: faasmctl invoke rabe test
+      - name: "Run JWT test"
+        if: "contains(env.FAASM_WASM_VM, 'wamr')"
+        timeout-minutes: 1
+        run: faasmctl invoke jwt test
       - name: "Print upload logs in case of failure"
         if: failure()
         run: faasmctl logs -s upload
