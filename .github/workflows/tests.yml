@@ -200,13 +200,6 @@ jobs:
         run: faasmctl logs -s upload
       - name: "Upload all data files"
         run: ./bin/inv_wrapper.sh data.upload
-      - name: "Try building locally and running with DEBUG DELETE ME"
-        run: |
-          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh dev.tools --build Debug"
-          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared"
-          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared/opencv"
-          faasmctl cli.faasm --cmd "ls -lart /usr/local/faasm/shared/opencv/composers"
-          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh run opencv pca --cmdline 'faasm://opencv/composers'"
           # FIXME: there is currently a bug in Faasm when we open a directory
           # that has been uploaded as a shared file. See:
           # https://github.com/faasm/faasm/issues/893
