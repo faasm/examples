@@ -200,6 +200,10 @@ jobs:
         run: faasmctl logs -s upload
       - name: "Upload all data files"
         run: ./bin/inv_wrapper.sh data.upload
+      - name: "Try building locally and running with DEBUG DELETE ME"
+        run: |
+          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh dev.tools --build Debug"
+          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh run opencv pca"
       - name: "Run OpenCV check"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
