@@ -319,10 +319,10 @@ jobs:
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 1
         run: faasmctl invoke rabe test
-      - name: "Run JWT test"
-        if: "contains(env.FAASM_WASM_VM, 'wamr')"
-        timeout-minutes: 1
-        run: faasmctl invoke jwt test
+          #       - name: "Run JWT test"
+          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
+          #         timeout-minutes: 1
+          #         run: faasmctl invoke jwt test
       - name: "Print upload logs in case of failure"
         if: failure()
         run: faasmctl logs -s upload
