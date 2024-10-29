@@ -203,7 +203,7 @@ jobs:
       - name: "Try building locally and running with DEBUG DELETE ME"
         run: |
           faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh dev.tools --build Debug"
-          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh run opencv pca"
+          faasmctl cli.faasm --cmd "./bin/inv_wrapper.sh run opencv pca --cmdline 'faasm://opencv/composers'"
       - name: "Run OpenCV check"
         if: "contains(env.FAASM_WASM_VM, 'wamr')"
         timeout-minutes: 2
