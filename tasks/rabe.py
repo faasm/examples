@@ -4,7 +4,7 @@ from os import environ, makedirs
 from os.path import exists, join
 from shutil import copy, rmtree
 from subprocess import run
-from tasks.env import EXAMPLES_DIR
+from tasks.env import EXAMPLES_DIR, in_docker
 
 
 @task(default=True)
@@ -32,9 +32,15 @@ def build(ctx, clean=False, native=False):
         header_dir = build_env["FAASM_WASM_HEADER_INSTALL_DIR"]
     else:
         if not exists(lib_dir):
-            makedirs(lib_dir)
+            if in_docker():
+                makedirs(lib_dir)
+            else:
+                run(f"sudo mkdir -p {lib_dir}", shell=True, check=True)
         if not exists(header_dir):
-            makedirs(header_dir)
+            if in_docker():
+                makedirs(header_dir)
+            else:
+                run(f"sudo mkdir -p {header_dir}", shell=True, check=True)
 
     if not native:
         src_lib = join(
@@ -44,7 +50,10 @@ def build(ctx, clean=False, native=False):
         src_lib = join(rabe_dir, "target", "release", "librabe.a")
 
     dst_lib = join(lib_dir, "librabe.a")
-    copy(src_lib, dst_lib)
+    if in_docker():
+        copy(src_lib, dst_lib)
+    else:
+        run(f"sudo cp {src_lib} {dst_lib}", shell=True, check=True)
 
     # Build the CPP bindings library, and cross-compile it to WASM
     rabe_cpp_dir = join(rabe_dir, "cpp-bindings")
@@ -81,14 +90,24 @@ def build(ctx, clean=False, native=False):
     # Install the CPP bindings library
     src_lib = join(build_dir, "librabe-cpp.a")
     dst_lib = join(lib_dir, "librabe-cpp.a")
-    copy(src_lib, dst_lib)
+    if in_docker():
+        copy(src_lib, dst_lib)
+    else:
+        run(f"sudo cp {src_lib} {dst_lib}", shell=True, check=True)
 
     # Install the headers
     src_header = join(rabe_cpp_dir, "rabe_bindings.hpp")
     dst_header = join(header_dir, "tless_abe.h")
     print(f"Installing {src_header} to {dst_header}")
-    copy(src_header, dst_header)
+    if in_docker():
+        copy(src_header, dst_header)
+    else:
+        run(f"sudo cp {src_header} {dst_header}", shell=True, check=True)
+
     src_header = join(rabe_cpp_dir, "tless_aes.h")
     dst_header = join(header_dir, "tless_aes.h")
-    copy(src_header, dst_header)
     print(f"Installing {src_header} to {dst_header}")
+    if in_docker():
+        copy(src_header, dst_header)
+    else:
+        run(f"sudo cp {src_header} {dst_header}", shell=True, check=True)
