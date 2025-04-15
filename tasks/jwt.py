@@ -4,7 +4,7 @@ from os import environ, makedirs
 from os.path import exists, join
 from shutil import copy, rmtree
 from subprocess import run
-from tasks.env import EXAMPLES_DIR
+from tasks.env import EXAMPLES_DIR, in_docker
 
 
 @task(default=True)
@@ -27,7 +27,11 @@ def build(ctx, clean=False, native=False):
     lib_dir = "/usr/local/lib/tless-jwt"
     header_dir = "/usr/include/tless-jwt"
     src_lib = join(
-        jwt_dir, "target", "wasm32-wasip1" if not native else "", "release", "libtless_jwt.a"
+        jwt_dir,
+        "target",
+        "wasm32-wasip1" if not native else "",
+        "release",
+        "libtless_jwt.a",
     )
     if native:
         if not exists(lib_dir):
@@ -43,7 +47,9 @@ def build(ctx, clean=False, native=False):
         dst_lib = join(lib_dir, "libtless_jwt.a")
     else:
         build_env = get_faasm_build_env_dict()
-        dst_lib = join(build_env["FAASM_WASM_LIB_INSTALL_DIR"], "libtless-jwt.a")
+        dst_lib = join(
+            build_env["FAASM_WASM_LIB_INSTALL_DIR"], "libtless-jwt.a"
+        )
     if in_docker():
         copy(src_lib, dst_lib)
     else:
@@ -51,7 +57,9 @@ def build(ctx, clean=False, native=False):
 
     # Build the CPP bindings library, and cross-compile it to WASM
     tles_jwt_cpp_dir = join(jwt_dir, "cpp-bindings")
-    build_dir = join(tles_jwt_cpp_dir, "build-native" if native else "build-wasm")
+    build_dir = join(
+        tles_jwt_cpp_dir, "build-native" if native else "build-wasm"
+    )
 
     if clean and exists(build_dir):
         rmtree(build_dir)
@@ -62,7 +70,11 @@ def build(ctx, clean=False, native=False):
         "cmake",
         "-GNinja",
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE) if not native else "",
+        (
+            "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE)
+            if not native
+            else ""
+        ),
         tles_jwt_cpp_dir,
     ]
     cmake_cmd = " ".join(cmake_cmd)
@@ -89,7 +101,7 @@ def build(ctx, clean=False, native=False):
 
     # Install the header too
     src_header = join(tles_jwt_cpp_dir, "tless_jwt.h")
-    if not native
+    if not native:
         dst_header = join(
             build_env["FAASM_WASM_HEADER_INSTALL_DIR"], "tless_jwt.h"
         )
