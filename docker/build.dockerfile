@@ -1,8 +1,8 @@
 ARG CPP_VERSION
 ARG EXAMPLES_VERSION
 # Base image is not re-built often and tag may lag behind
-FROM faasm.azurecr.io/examples-base:0.6.0_0.4.0 AS base
-FROM faasm.azurecr.io/cpp-sysroot:${CPP_VERSION:-dead}
+FROM ghcr.io/faasm/examples-base:0.6.0_0.4.0 AS base
+FROM ghcr.io/faasm/cpp-sysroot:${CPP_VERSION:-dead}
 
 SHELL ["/bin/bash", "-c"]
 ENV IN_DOCKER="on"
