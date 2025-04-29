@@ -57,3 +57,11 @@
 [submodule "examples/opencv"]
 	path = examples/opencv
 	url = https://github.com/opencv/opencv.git
+[submodule "examples/grass-addons"]
+	path = examples/grass-addons
+	url = git@github.com:faasm/grass-addons.git
+	branch = faasm
+[submodule "examples/grass"]
+	path = examples/grass
+	url = git@github.com:faasm/grass.git
+	branch = faasm
