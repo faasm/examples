@@ -49,7 +49,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/polybench \
-    && git submodule update --init -f examples/tensorflow \
+    && git submodule update --init -f examples/tensorflow
 
 # Build the examples and demo functions
 ENV PATH=${PATH}:/root/.cargo/bin
