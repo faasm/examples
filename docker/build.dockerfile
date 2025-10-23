@@ -1,7 +1,7 @@
 ARG CPP_VERSION
 ARG EXAMPLES_VERSION
 # Base image is not re-built often and tag may lag behind
-FROM ghcr.io/faasm/examples-base:0.6.0_0.4.0 AS base
+FROM ghcr.io/faasm/examples-base:0.8.0_0.4.0 AS base
 FROM ghcr.io/faasm/cpp-sysroot:${CPP_VERSION:-dead}
 
 SHELL ["/bin/bash", "-c"]
@@ -10,22 +10,24 @@ ENV IN_DOCKER="on"
 # Copy built OpenMPI from previous step
 COPY --from=base /tmp/openmpi-4.1.0/ /tmp/openmpi-4.1.0/
 
+# Install OpenMP
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        build-essential \
+        curl \
+        libomp-17-dev
+
 # Install OpenMPI
 RUN cd /tmp/openmpi-4.1.0 \
     && make install \
     && cd /tmp \
     && rm -rf /tmp/openmpi-4.1.0 /tmp/openmpi-4.1.0.tar.bz2
 
-# Install OpenMP
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update \
-    && apt install -y libomp-17-dev
-
 # Install rust
 RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y \
     && source ~/.cargo/env \
     && rustup target add wasm32-wasip1
-
 
 # Fetch the code and update submodules
 ARG EXAMPLES_VERSION

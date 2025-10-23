@@ -1,5 +1,5 @@
 from faasmtools.build import FAASM_LOCAL_DIR
-from faasmtools.docker import ACR_NAME
+from faasmtools.docker import CR_NAME
 from faasmtools.env import get_version as get_cpp_version
 from os import environ
 from os.path import dirname, abspath, join
@@ -14,9 +14,9 @@ WASM_DIR = join(PROJ_ROOT, "wasm")
 
 # Docker variables
 EXAMPLES_BUILD_IMAGE_CTR = "examples-build-workon"
-EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(ACR_NAME)
+EXAMPLES_BUILD_IMAGE_NAME = "{}/examples-build".format(CR_NAME)
 EXAMPLES_BUILD_DOCKERFILE = join(DOCKER_ROOT, "build.dockerfile")
-EXAMPLES_BASE_IMAGE_NAME = "{}/examples-base".format(ACR_NAME)
+EXAMPLES_BASE_IMAGE_NAME = "{}/examples-base".format(CR_NAME)
 EXAMPLES_BASE_DOCKERFILE = join(DOCKER_ROOT, "base.dockerfile")
 
 # Shared files data
