@@ -16,7 +16,8 @@ RUN apt update \
     && apt install -y --no-install-recommends \
         build-essential \
         curl \
-        libomp-17-dev
+        libomp-17-dev \
+        unzip
 
 # Install OpenMPI
 RUN cd /tmp/openmpi-4.1.0 \
@@ -48,9 +49,7 @@ RUN mkdir -p code \
     && git submodule update --init -f examples/LULESH \
     && git submodule update --init -f examples/libpng \
     && git submodule update --init -f examples/polybench \
-    && git submodule update --init -f examples/rabe \
     && git submodule update --init -f examples/tensorflow \
-    && git submodule update --init -f examples/tless-jwt
 
 # Build the examples and demo functions
 ENV PATH=${PATH}:/root/.cargo/bin
@@ -66,7 +65,6 @@ RUN cd /code/examples \
     && inv polybench --native \
     # Build the WASM applications
     && inv ffmpeg \
-    && inv jwt \
     # ImageMagick needs libpng
     && inv libpng imagemagick \
     && inv kernels \
@@ -75,14 +73,11 @@ RUN cd /code/examples \
     && inv lammps --migration-net \
     && inv lulesh \
     && inv polybench \
-    && inv rabe \
     && inv tensorflow \
     # These demo functions link with the cross-compiled static libraries
     && inv func ffmpeg check \
-    && inv func jwt test \
     && inv func lammps chain \
     && inv func mpi migrate \
-    && inv func rabe test \
     && inv func tf check
 
 # Prepare bashrc
