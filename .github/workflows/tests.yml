@@ -67,12 +67,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: "Build Rabe and JWT"
-        run: |
-          export PATH=$PATH:/root/.cargo/env
-          rustup default stable
-          rustup target add wasm32-wasip1
-          ./bin/inv_wrapper.sh rabe jwt
       - name: "Build OpenCV"
         run: ./bin/inv_wrapper.sh opencv
       - name: "Build FFmpeg"
@@ -312,14 +306,6 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
-      - name: "Run Rabe test"
-        if: "contains(env.FAASM_WASM_VM, 'wamr')"
-        timeout-minutes: 1
-        run: faasmctl invoke rabe test
-          #       - name: "Run JWT test"
-          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
-          #         timeout-minutes: 1
-          #         run: faasmctl invoke jwt test
       - name: "Print upload logs in case of failure"
         if: failure()
         run: faasmctl logs -s upload
