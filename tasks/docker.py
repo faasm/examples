@@ -55,9 +55,6 @@ def build(ctx, ctr, nocache=False, push=False):
             build_args=build_args,
         )
 
-        if push:
-            push(ctx, [c])
-
 
 @task(iterable=["ctr"])
 def push(ctx, ctr):

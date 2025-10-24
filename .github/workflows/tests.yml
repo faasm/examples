@@ -61,18 +61,12 @@ jobs:
     if: ${{ needs.needs-build.outputs.needs-wasm == 'true' }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/faasm/examples-build:0.6.0_0.4.0
+      image: ghcr.io/faasm/examples-build:0.8.0_0.4.0
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: "Build Rabe and JWT"
-        run: |
-          export PATH=$PATH:/root/.cargo/env
-          rustup default stable
-          rustup target add wasm32-wasip1
-          ./bin/inv_wrapper.sh rabe jwt
       - name: "Build OpenCV"
         run: ./bin/inv_wrapper.sh opencv
       - name: "Build FFmpeg"
@@ -138,7 +132,7 @@ jobs:
         shell: bash
     env:
       FAASM_INI_FILE: ./faasm.ini
-      FAASM_VERSION: 0.29.0
+      FAASM_VERSION: 0.33.0
       FAASM_WASM_VM: ${{ matrix.faasm_wasm_vm }}
     steps:
       - uses: csegarragonz/set-compose-version-action@main
@@ -312,14 +306,6 @@ jobs:
       - name: "Run FFmpeg check"
         timeout-minutes: 1
         run: faasmctl invoke ffmpeg check
-      - name: "Run Rabe test"
-        if: "contains(env.FAASM_WASM_VM, 'wamr')"
-        timeout-minutes: 1
-        run: faasmctl invoke rabe test
-          #       - name: "Run JWT test"
-          #         if: "contains(env.FAASM_WASM_VM, 'wamr')"
-          #         timeout-minutes: 1
-          #         run: faasmctl invoke jwt test
       - name: "Print upload logs in case of failure"
         if: failure()
         run: faasmctl logs -s upload
