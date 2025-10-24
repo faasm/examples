@@ -1,5 +1,5 @@
 black>=22.3.0
-faasmctl>=0.32.0
+faasmctl>=0.51.0
 flake8>=4.0.1
 invoke>=1.7.1
 python-lsp-server[all]>=1.12.0
