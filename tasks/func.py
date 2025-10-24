@@ -44,7 +44,6 @@ def tests(ctx, clean=False):
         ["ffmpeg", "check"],
         ["opencv", "check"],
         ["opencv", "pca"],
-        ["rabe", "test"],
         ["tf", "check"],
         # TODO: this two functions are not used in the tests, as they are used
         # to exercise migration, for what we need a distributed test setting

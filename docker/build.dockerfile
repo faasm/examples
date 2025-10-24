@@ -17,7 +17,8 @@ RUN apt update \
         build-essential \
         curl \
         libomp-17-dev \
-        unzip
+        unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install OpenMPI
 RUN cd /tmp/openmpi-4.1.0 \
